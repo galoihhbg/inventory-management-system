@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Simple global Ant Design + Tailwind adjustment */
+html, body, #root {
+  height: 100%;
+}
+
+.ant-layout {
+  background: transparent;
+}
