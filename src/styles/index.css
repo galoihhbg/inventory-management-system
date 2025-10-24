@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 /* Simple global Ant Design + Tailwind adjustment */
 html, body, #root {
