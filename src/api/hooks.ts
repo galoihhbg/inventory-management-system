@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import client from './client';
 
 type ListResponse<T> = {
@@ -7,57 +7,51 @@ type ListResponse<T> = {
 };
 
 export function useEntityList<T = any>(endpoint: string, params?: Record<string, any>) {
-  return useQuery<ListResponse<T>>(
-    [endpoint, params],
-    async () => {
+  return useQuery<ListResponse<T>>({
+    queryKey: [endpoint, params],
+    queryFn: async () => {
       const res = await client.get(endpoint, { params });
       return res.data;
     },
-    {
-      keepPreviousData: true
-    }
-  );
+    placeholderData: keepPreviousData
+  });
 }
 
 export function useEntityCRUD(endpoint: string) {
   const qc = useQueryClient();
 
-  const create = useMutation(
-    async (payload: any) => {
+  const create = useMutation({
+    mutationFn: async (payload: any) => {
       const res = await client.post(endpoint, payload);
       return res.data;
     },
-    {
-      onSuccess: () => {
-        qc.invalidateQueries([endpoint]);
-      }
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [endpoint] });
     }
-  );
+  });
 
-  const update = useMutation(
-    async ({ id, payload }: { id: string | number; payload: any }) => {
+  const update = useMutation({
+    mutationFn: async ({ id, payload }: { id: string | number; payload: any }) => {
       const res = await client.put(`${endpoint}/${id}`, payload);
       return res.data;
     },
-    {
-      onSuccess: () => qc.invalidateQueries([endpoint])
-    }
-  );
+    onSuccess: () => qc.invalidateQueries({ queryKey: [endpoint] })
+  });
 
-  const remove = useMutation(
-    async (id: string | number) => {
+  const remove = useMutation({
+    mutationFn: async (id: string | number) => {
       const res = await client.delete(`${endpoint}/${id}`);
       return res.data;
     },
-    {
-      onSuccess: () => qc.invalidateQueries([endpoint])
-    }
-  );
+    onSuccess: () => qc.invalidateQueries({ queryKey: [endpoint] })
+  });
 
-  const getOne = async (id: string | number) => {
-    const res = await client.get(`${endpoint}/${id}`);
-    return res.data;
-  };
+  const getOne = useMutation({
+    mutationFn: async (id: string | number) => {
+      const res = await client.get(`${endpoint}/${id}`);
+      return res.data;
+    }
+  });
 
   return { create, update, remove, getOne };
 }
