@@ -5,8 +5,14 @@ type User = {
   id: number;
   username: string;
   email?: string;
-  roles?: string[]; // e.g., ['admin', 'manager']
+  roles?: Roles; // e.g., ['admin', 'manager']
 };
+
+type Roles = {
+  id: number;
+  role_name: string;
+  [key: string]: any;
+}[];
 
 type AuthContextValue = {
   user: User | null;
@@ -71,7 +77,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const hasRole = (roles: string | string[]) => {
     if (!user?.roles?.length) return false;
     const check = Array.isArray(roles) ? roles : [roles];
-    return check.some((r) => user.roles!.includes(r));
+    return check.some((r) => user.roles!.some((role) => role.role_name === r));
   };
 
   return (
