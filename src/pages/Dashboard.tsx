@@ -4,9 +4,12 @@ import { useQuery } from '@tanstack/react-query';
 import client from '../api/client';
 
 export default function Dashboard() {
-  const { data: health } = useQuery(['health'], async () => {
-    const res = await client.get('/health');
-    return res.data;
+  const { data: health } = useQuery({
+    queryKey: ['health'],
+    queryFn: async () => {
+      const res = await client.get('/health');
+      return res.data;
+    }
   });
 
   const fetchCount = async (endpoint: string) => {
@@ -18,8 +21,15 @@ export default function Dashboard() {
     }
   };
 
-  const { data: warehousesCount } = useQuery(['count', 'warehouses'], () => fetchCount('/warehouses'));
-  const { data: itemsCount } = useQuery(['count', 'items'], () => fetchCount('/items'));
+  const { data: warehousesCount } = useQuery({
+    queryKey: ['count', 'warehouses'],
+    queryFn: () => fetchCount('/warehouses')
+  });
+  
+  const { data: itemsCount } = useQuery({
+    queryKey: ['count', 'items'],
+    queryFn: () => fetchCount('/items')
+  });
 
   return (
     <div>
