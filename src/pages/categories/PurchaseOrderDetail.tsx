@@ -23,7 +23,7 @@ export default function PurchaseOrderDetail() {
     fetchPurchaseOrder();
   }, [id]);
 
-  const fetchPurchaseOrder = async () => {
+  const fetchPurchaseOrder = async (): Promise<boolean> => {
     try {
       setLoading(true);
       const response = await client.get(`/purchase-orders/${id}`);
