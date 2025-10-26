@@ -20,7 +20,7 @@ const columns = [
   },
   {
     title: 'Status',
-    dataIndex: 'status',
+    dataIndex: 'purchaseOrderStatus',
     key: 'status',
     render: (status: string) => {
       const color = status === 'confirmed' ? 'green' : 'orange';
@@ -29,7 +29,7 @@ const columns = [
   },
   { 
     title: 'Order Date', 
-    dataIndex: 'orderDate', 
+    dataIndex: 'createdAt', 
     key: 'orderDate',
     render: (date: string) => date ? new Date(date).toLocaleString() : '-'
   },

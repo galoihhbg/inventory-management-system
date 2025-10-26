@@ -107,7 +107,7 @@ export default function PurchaseOrderDetail() {
         <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/purchase-orders')}>
           Back
         </Button>
-        {purchaseOrder.status === 'draft' && (
+        {purchaseOrder.purchaseOrderStatus === 'draft' && (
           <Button 
             type="primary" 
             icon={<CheckCircleOutlined />}
@@ -123,12 +123,12 @@ export default function PurchaseOrderDetail() {
           <Descriptions.Item label="ID">{purchaseOrder.id}</Descriptions.Item>
           <Descriptions.Item label="Code">{purchaseOrder.code}</Descriptions.Item>
           <Descriptions.Item label="Status">
-            <Tag color={purchaseOrder.status === 'confirmed' ? 'green' : 'orange'}>
-              {purchaseOrder.status?.toUpperCase()}
+            <Tag color={purchaseOrder.purchaseOrderStatus === 'confirmed' ? 'green' : 'orange'}>
+              {purchaseOrder.purchaseOrderStatus?.toUpperCase()}
             </Tag>
           </Descriptions.Item>
           <Descriptions.Item label="Order Date">
-            {purchaseOrder.orderDate ? new Date(purchaseOrder.orderDate).toLocaleString() : '-'}
+            {purchaseOrder.createdAt ? new Date(purchaseOrder.createdAt).toLocaleString() : '-'}
           </Descriptions.Item>
           <Descriptions.Item label="Confirmed At">
             {purchaseOrder.confirmedAt ? new Date(purchaseOrder.confirmedAt).toLocaleString() : '-'}

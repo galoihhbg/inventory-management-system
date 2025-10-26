@@ -5,7 +5,8 @@ const columns = [
   { title: 'ID', dataIndex: 'id', key: 'id', width: 80 },
   { title: 'Code', dataIndex: 'code', key: 'code' },
   { title: 'Name', dataIndex: 'name', key: 'name' },
-  { title: 'Phone', dataIndex: 'phoneNumber', key: 'phoneNumber' }
+  { title: 'Phone', dataIndex: 'phoneNumber', key: 'phoneNumber' },
+  { title: 'Address', dataIndex: 'address', key: 'address' }
 ];
 
 export default function PartnersList() {
