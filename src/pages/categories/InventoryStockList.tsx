@@ -1,7 +1,9 @@
 import React, { useMemo, useState } from 'react';
-import { Table, Input, Select } from 'antd';
+import { Table, Input, Select, Button } from 'antd';
 import { useEntityList } from '../../api/hooks';
 import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
+import { FilterOutlined } from '@ant-design/icons';
 import client from '../../api/client';
 
 type InventoryStockItem = {
@@ -23,6 +25,7 @@ type InventoryStockResponse = {
 };
 
 export default function InventoryStockList() {
+  const navigate = useNavigate();
   const [warehouseId, setWarehouseId] = useState<number | undefined>(undefined);
   const [searchText, setSearchText] = useState('');
 
@@ -73,10 +76,15 @@ export default function InventoryStockList() {
     }
   ];
 
+  const handleRowClick = (record: InventoryStockItem) => {
+    // Navigate to filter page with the itemId pre-filled
+    navigate(`/inventory-stock/filter?itemId=${record.itemId}`);
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h3>Inventory Stock</h3>
+        <h3>Inventory Stock - Aggregated View</h3>
         <div className="flex gap-2">
           <Select
             placeholder="Select Warehouse"
@@ -97,6 +105,13 @@ export default function InventoryStockList() {
             allowClear
             style={{ width: 240 }}
           />
+          <Button 
+            type="primary" 
+            icon={<FilterOutlined />}
+            onClick={() => navigate('/inventory-stock/filter')}
+          >
+            Detailed View
+          </Button>
         </div>
       </div>
 
@@ -106,6 +121,10 @@ export default function InventoryStockList() {
         dataSource={dataSource}
         columns={columns}
         pagination={{ pageSize: 10, total: data?.pagination?.total }}
+        onRow={(record) => ({
+          onClick: () => handleRowClick(record),
+          style: { cursor: 'pointer' }
+        })}
       />
     </div>
   );

@@ -34,6 +34,7 @@ import PurchaseOrderDetail from './pages/categories/PurchaseOrderDetail';
 
 // Inventory Stock
 import InventoryStockList from './pages/categories/InventoryStockList';
+import InventoryStockFilterList from './pages/categories/InventoryStockFilterList';
 
 const { Header, Sider, Content } = Layout;
 
@@ -103,6 +104,7 @@ function App() {
 
               {/* Inventory Stock */}
               <Route path="/inventory-stock" element={<ProtectedRoute roles={['admin','manager','user']}><InventoryStockList /></ProtectedRoute>} />
+              <Route path="/inventory-stock/filter" element={<ProtectedRoute roles={['admin','manager','user']}><InventoryStockFilterList /></ProtectedRoute>} />
 
               {/* Settings */}
               <Route path="/settings/display" element={<ProtectedRoute roles="admin"><DisplaySettings /></ProtectedRoute>} />
