@@ -1,21 +1,22 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Card, Button, notification, Descriptions, Table, Space, Tag, Modal, Form, Select, Spin } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
-import { CheckCircleOutlined, ArrowLeftOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, ArrowLeftOutlined, ReloadOutlined } from '@ant-design/icons';
 import client from '../../api/client';
 import { useEntityList } from '../../api/hooks';
+import { PurchaseOrder, Bin } from '../../types';
 
 const { Option } = Select;
 
 export default function PurchaseOrderDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [purchaseOrder, setPurchaseOrder] = useState<any>(null);
+  const [purchaseOrder, setPurchaseOrder] = useState<PurchaseOrder | null>(null);
   const [loading, setLoading] = useState(true);
   const [confirmModalVisible, setConfirmModalVisible] = useState(false);
   const [confirmForm] = Form.useForm();
 
-  const { data: binsData, isLoading: binsLoading } = useEntityList<any>('/bins', { limit: 200 });
+  const { data: binsData, isLoading: binsLoading } = useEntityList<Bin>('/bins', { limit: 200 });
   const bins = useMemo(() => binsData?.data || [], [binsData]);
 
   useEffect(() => {
@@ -37,6 +38,11 @@ export default function PurchaseOrderDetail() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRefresh = () => {
+    fetchPurchaseOrder();
+    notification.success({ message: 'Data refreshed' });
   };
 
   const handleConfirm = async (values: any) => {
@@ -107,6 +113,9 @@ export default function PurchaseOrderDetail() {
         <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/purchase-orders')}>
           Back
         </Button>
+        <Button icon={<ReloadOutlined />} onClick={handleRefresh}>
+          Refresh
+        </Button>
         {purchaseOrder.purchaseOrderStatus === 'draft' && (
           <Button 
             type="primary" 
@@ -134,8 +143,8 @@ export default function PurchaseOrderDetail() {
             {purchaseOrder.confirmedAt ? new Date(purchaseOrder.confirmedAt).toLocaleString() : '-'}
           </Descriptions.Item>
           <Descriptions.Item label="Creator">
-            {purchaseOrder.creator ? 
-              `${purchaseOrder.creator.username} (${purchaseOrder.creator.email})` : 
+            {(purchaseOrder as any).creator ? 
+              `${(purchaseOrder as any).creator.username} (${(purchaseOrder as any).creator.email})` : 
               '-'
             }
           </Descriptions.Item>
@@ -192,7 +201,7 @@ export default function PurchaseOrderDetail() {
                 option?.children?.toLowerCase().includes(input.toLowerCase())
               }
             >
-              {bins.map((b: any) => (
+              {bins.map((b) => (
                 <Option key={b.id} value={b.id}>
                   {b.locationCode} - {b.warehouse?.name || `Warehouse ${b.warehouseId}`}
                 </Option>
