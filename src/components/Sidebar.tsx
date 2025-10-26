@@ -17,6 +17,7 @@ const ITEMS: MenuItem[] = [
   { key: 'warehouses', label: 'Warehouses', path: '/warehouses', icon: <DatabaseOutlined /> },
   { key: 'items', label: 'Items', path: '/items', icon: <AppstoreOutlined /> },
   { key: 'inventoryStock', label: 'Inventory Stock', path: '/inventory-stock', icon: <StockOutlined /> },
+  { key: 'inventorySummary', label: 'Inventory Summary', path: '/inventory-summary', icon: <StockOutlined /> },
   { key: 'purchaseOrders', label: 'Purchase Orders', path: '/purchase-orders', icon: <ShoppingCartOutlined /> },
   { key: 'users', label: 'Users', path: '/users', icon: <TeamOutlined /> },
   { key: 'roles', label: 'Roles', path: '/roles', icon: <UnlockOutlined /> },

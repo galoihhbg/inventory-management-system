@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
-import { Card, Form, Input, Button, notification, Select, Spin } from 'antd';
+import { Card, Form, Input, Button, notification, Select, Spin, Checkbox } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEntityCRUD, useEntityList } from '../../api/hooks';
 
@@ -18,12 +18,13 @@ export default function BinForm() {
     if (id) {
       (async () => {
         try {
-          const res = await getOne(id);
+          const res = await getOne.mutateAsync(id);
           const d = res.data || res;
           form.setFieldsValue({
             locationCode: d.locationCode,
             warehouseId: d.warehouseId ?? (d.warehouse ? d.warehouse.id : undefined),
-            description: d.description
+            description: d.description,
+            isReceivingBin: d.isReceivingBin || false
           });
         } catch (err: any) {
           notification.error({ message: 'Could not fetch bin', description: err?.message });
@@ -49,7 +50,7 @@ export default function BinForm() {
 
   return (
     <Card title={id ? 'Edit Bin' : 'New Bin'}>
-      <Form form={form} layout="vertical" onFinish={onFinish} initialValues={{ locationCode: '', warehouseId: undefined, description: '' }}>
+      <Form form={form} layout="vertical" onFinish={onFinish} initialValues={{ locationCode: '', warehouseId: undefined, description: '', isReceivingBin: false }}>
         <Form.Item name="locationCode" label="Location Code" rules={[{ required: true, message: 'Location code required' }]}>
           <Input />
         </Form.Item>
@@ -70,6 +71,12 @@ export default function BinForm() {
 
         <Form.Item name="description" label="Description">
           <Input.TextArea rows={4} />
+        </Form.Item>
+
+        <Form.Item name="isReceivingBin" valuePropName="checked">
+          <Checkbox>
+            Mark as receiving bin (for incoming inventory)
+          </Checkbox>
         </Form.Item>
 
         <Form.Item>

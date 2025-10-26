@@ -11,7 +11,14 @@ type InventoryStockItem = {
   itemCode: string;
   itemName: string;
   totalQuantity: number;
+  totalBins: number;
+  averageUnitPrice: number;
   totalValue: number;
+  bins: {
+    binId: number;
+    binLocationCode: string;
+    quantity: number;
+  }[];
 };
 
 type InventoryStockResponse = {
@@ -63,16 +70,31 @@ export default function InventoryStockList() {
       title: 'Total Quantity', 
       dataIndex: 'totalQuantity', 
       key: 'totalQuantity', 
-      width: 150,
+      width: 120,
       align: 'right' as const
+    },
+    { 
+      title: 'Total Bins', 
+      dataIndex: 'totalBins', 
+      key: 'totalBins', 
+      width: 100,
+      align: 'right' as const
+    },
+    { 
+      title: 'Avg Unit Price', 
+      dataIndex: 'averageUnitPrice', 
+      key: 'averageUnitPrice', 
+      width: 130,
+      align: 'right' as const,
+      render: (value: number) => `$${value?.toFixed(2) || '0.00'}`
     },
     { 
       title: 'Total Value', 
       dataIndex: 'totalValue', 
       key: 'totalValue', 
-      width: 150,
+      width: 130,
       align: 'right' as const,
-      render: (value: number) => value.toLocaleString()
+      render: (value: number) => `$${value?.toLocaleString() || '0'}`
     }
   ];
 

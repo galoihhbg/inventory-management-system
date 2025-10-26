@@ -12,10 +12,12 @@ type InventoryStockFilterItem = {
   itemCode: string;
   itemName: string;
   binId: number;
-  binCode: string;
+  binLocationCode: string;
   quantity: number;
   unitPrice: number;
   totalPrice: number;
+  purchaseOrderItemId?: number;
+  receivedAt?: string;
   warehouseId?: number;
   warehouseName?: string;
   status?: string;
@@ -119,10 +121,10 @@ export default function InventoryStockFilterList() {
       key: 'itemName' 
     },
     { 
-      title: 'Bin Code', 
-      dataIndex: 'binCode', 
-      key: 'binCode', 
-      width: 100 
+      title: 'Bin Location', 
+      dataIndex: 'binLocationCode', 
+      key: 'binLocationCode', 
+      width: 120 
     },
     { 
       title: 'Quantity', 
@@ -137,7 +139,7 @@ export default function InventoryStockFilterList() {
       key: 'unitPrice', 
       width: 120,
       align: 'right' as const,
-      render: (value: number) => value?.toLocaleString() || '-'
+      render: (value: number) => `$${value?.toFixed(2) || '0.00'}`
     },
     { 
       title: 'Total Price', 
@@ -145,7 +147,14 @@ export default function InventoryStockFilterList() {
       key: 'totalPrice', 
       width: 120,
       align: 'right' as const,
-      render: (value: number) => value?.toLocaleString() || '-'
+      render: (value: number) => `$${value?.toFixed(2) || '0.00'}`
+    },
+    { 
+      title: 'Received At', 
+      dataIndex: 'receivedAt', 
+      key: 'receivedAt', 
+      width: 130,
+      render: (date: string) => date ? new Date(date).toLocaleDateString() : '-'
     },
     {
       title: 'Actions',
@@ -302,12 +311,20 @@ export default function InventoryStockFilterList() {
             <Descriptions.Item label="Item Code">{selectedRecord.itemCode}</Descriptions.Item>
             <Descriptions.Item label="Item Name">{selectedRecord.itemName}</Descriptions.Item>
             <Descriptions.Item label="Bin ID">{selectedRecord.binId}</Descriptions.Item>
-            <Descriptions.Item label="Bin Code">{selectedRecord.binCode}</Descriptions.Item>
+            <Descriptions.Item label="Bin Location">{selectedRecord.binLocationCode}</Descriptions.Item>
             <Descriptions.Item label="Quantity">{selectedRecord.quantity}</Descriptions.Item>
-            <Descriptions.Item label="Unit Price">{selectedRecord.unitPrice?.toLocaleString()}</Descriptions.Item>
-            <Descriptions.Item label="Total Price" span={2}>
-              {selectedRecord.totalPrice?.toLocaleString()}
-            </Descriptions.Item>
+            <Descriptions.Item label="Unit Price">${selectedRecord.unitPrice?.toFixed(2) || '0.00'}</Descriptions.Item>
+            <Descriptions.Item label="Total Price">${selectedRecord.totalPrice?.toFixed(2) || '0.00'}</Descriptions.Item>
+            {selectedRecord.receivedAt && (
+              <Descriptions.Item label="Received At" span={2}>
+                {new Date(selectedRecord.receivedAt).toLocaleString()}
+              </Descriptions.Item>
+            )}
+            {selectedRecord.purchaseOrderItemId && (
+              <Descriptions.Item label="Purchase Order Item ID" span={2}>
+                {selectedRecord.purchaseOrderItemId}
+              </Descriptions.Item>
+            )}
             {selectedRecord.warehouseId && (
               <Descriptions.Item label="Warehouse ID">{selectedRecord.warehouseId}</Descriptions.Item>
             )}

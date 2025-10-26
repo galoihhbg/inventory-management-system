@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Card, Button, notification, Descriptions, Table, Space, Tag, Modal, Form, Select, Spin } from 'antd';
+import { Card, Button, notification, Descriptions, Table, Space, Tag, Modal, Form, Select, Spin, InputNumber } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
 import { CheckCircleOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import client from '../../api/client';
@@ -14,6 +14,7 @@ export default function PurchaseOrderDetail() {
   const [loading, setLoading] = useState(true);
   const [confirmModalVisible, setConfirmModalVisible] = useState(false);
   const [confirmForm] = Form.useForm();
+  const [confirmItems, setConfirmItems] = useState<any[]>([]);
 
   const { data: binsData, isLoading: binsLoading } = useEntityList<any>('/bins', { limit: 200 });
   const bins = useMemo(() => binsData?.data || [], [binsData]);
@@ -41,8 +42,20 @@ export default function PurchaseOrderDetail() {
 
   const handleConfirm = async (values: any) => {
     try {
+      // Validate that all items have actual quantities and bins set
+      const itemsToConfirm = confirmItems.map(item => ({
+        purchaseOrderItemId: item.id,
+        actualQuantity: item.actualQuantity || item.quantityOrdered,
+        binId: item.binId || item.originalBinId
+      }));
+
+      if (itemsToConfirm.some(item => !item.binId || item.actualQuantity <= 0)) {
+        notification.error({ message: 'Please set bin location and actual quantity for all items' });
+        return;
+      }
+
       await client.post(`/purchase-orders/${id}/confirm`, {
-        binId: values.binId
+        items: itemsToConfirm
       });
       notification.success({ message: 'Purchase order confirmed successfully' });
       setConfirmModalVisible(false);
@@ -69,17 +82,20 @@ export default function PurchaseOrderDetail() {
     {
       title: 'Quantity Ordered',
       dataIndex: 'quantityOrdered',
-      key: 'quantityOrdered'
+      key: 'quantityOrdered',
+      align: 'right' as const
     },
     {
       title: 'Unit Price',
       dataIndex: 'unitPrice',
       key: 'unitPrice',
+      align: 'right' as const,
       render: (price: number) => `$${price.toFixed(2)}`
     },
     {
       title: 'Total',
       key: 'total',
+      align: 'right' as const,
       render: (_: any, record: any) => `$${(record.quantityOrdered * record.unitPrice).toFixed(2)}`
     }
   ];
@@ -111,7 +127,16 @@ export default function PurchaseOrderDetail() {
           <Button 
             type="primary" 
             icon={<CheckCircleOutlined />}
-            onClick={() => setConfirmModalVisible(true)}
+            onClick={() => {
+              // Initialize confirm items with original data
+              const items = (purchaseOrder.items || []).map((item: any) => ({
+                ...item,
+                actualQuantity: item.quantityOrdered,
+                originalBinId: item.binId
+              }));
+              setConfirmItems(items);
+              setConfirmModalVisible(true);
+            }}
           >
             Confirm Order
           </Button>
@@ -145,6 +170,25 @@ export default function PurchaseOrderDetail() {
               '-'
             }
           </Descriptions.Item>
+          
+          {/* Delivery Information */}
+          {purchaseOrder.items && purchaseOrder.items.length > 0 && purchaseOrder.items[0].bin && (
+            <>
+              <Descriptions.Item label="Delivery Warehouse">
+                {purchaseOrder.items[0].bin.warehouse?.name || 
+                 `Warehouse ${purchaseOrder.items[0].bin.warehouseId}`}
+              </Descriptions.Item>
+              <Descriptions.Item label="Delivery Bin">
+                {purchaseOrder.items[0].bin.locationCode}
+                {purchaseOrder.items[0].bin.isReceivingBin && 
+                  <Tag color="green" className="ml-2">Receiving Bin</Tag>
+                }
+              </Descriptions.Item>
+              <Descriptions.Item label="Bin Description" span={2}>
+                {purchaseOrder.items[0].bin.description || '-'}
+              </Descriptions.Item>
+            </>
+          )}
         </Descriptions>
       </Card>
 
@@ -172,39 +216,92 @@ export default function PurchaseOrderDetail() {
         open={confirmModalVisible}
         onCancel={() => setConfirmModalVisible(false)}
         footer={null}
+        width={800}
       >
         <Form form={confirmForm} layout="vertical" onFinish={handleConfirm}>
           <p className="mb-4">
-            Confirming this purchase order will update its status and create inventory stock records 
-            for all items in the selected bin location.
+            Confirming this purchase order will update its status and create inventory stock records. 
+            You can adjust the actual quantity received and bin location for each item below.
           </p>
           
-          <Form.Item
-            name="binId"
-            label="Select Bin Location"
-            rules={[{ required: true, message: 'Please select a bin location' }]}
-          >
-            <Select 
-              placeholder="Select bin location" 
-              loading={binsLoading}
-              showSearch
-              filterOption={(input, option: any) =>
-                option?.children?.toLowerCase().includes(input.toLowerCase())
-              }
-            >
-              {bins.map((b: any) => (
-                <Option key={b.id} value={b.id}>
-                  {b.locationCode} - {b.warehouse?.name || `Warehouse ${b.warehouseId}`}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
+          <div className="mb-4">
+            <h4 className="font-semibold mb-2">Items to Confirm</h4>
+            <Table
+              dataSource={confirmItems}
+              rowKey="id"
+              pagination={false}
+              size="small"
+              columns={[
+                {
+                  title: 'Item',
+                  key: 'item',
+                  render: (_: any, record: any) => (
+                    <div>
+                      <div className="font-medium">{record.item?.name || 'Unknown Item'}</div>
+                      <div className="text-xs text-gray-500">{record.item?.code}</div>
+                    </div>
+                  )
+                },
+                {
+                  title: 'Ordered Qty',
+                  dataIndex: 'quantityOrdered',
+                  key: 'quantityOrdered',
+                  width: 100
+                },
+                {
+                  title: 'Actual Qty',
+                  key: 'actualQuantity',
+                  width: 120,
+                  render: (_: any, record: any, index: number) => (
+                    <InputNumber
+                      min={0}
+                      value={record.actualQuantity}
+                      onChange={(value) => {
+                        const newItems = [...confirmItems];
+                        newItems[index].actualQuantity = value || 0;
+                        setConfirmItems(newItems);
+                      }}
+                      style={{ width: '100%' }}
+                    />
+                  )
+                },
+                {
+                  title: 'Bin Location',
+                  key: 'binId',
+                  width: 200,
+                  render: (_: any, record: any, index: number) => (
+                    <Select
+                      value={record.binId || record.originalBinId}
+                      onChange={(value) => {
+                        const newItems = [...confirmItems];
+                        newItems[index].binId = value;
+                        setConfirmItems(newItems);
+                      }}
+                      placeholder="Select bin"
+                      loading={binsLoading}
+                      showSearch
+                      style={{ width: '100%' }}
+                      filterOption={(input, option: any) =>
+                        option?.children?.toLowerCase().includes(input.toLowerCase())
+                      }
+                    >
+                      {bins.map((b: any) => (
+                        <Option key={b.id} value={b.id}>
+                          {b.locationCode}
+                        </Option>
+                      ))}
+                    </Select>
+                  )
+                }
+              ]}
+            />
+          </div>
 
           <Form.Item>
             <div className="flex gap-2 justify-end">
               <Button onClick={() => setConfirmModalVisible(false)}>Cancel</Button>
               <Button type="primary" htmlType="submit">
-                Confirm
+                Confirm Purchase Order
               </Button>
             </div>
           </Form.Item>
