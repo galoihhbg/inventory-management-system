@@ -5,7 +5,7 @@ const columns = [
   { title: 'ID', dataIndex: 'id', key: 'id', width: 80 },
   { title: 'Code', dataIndex: 'code', key: 'code' },
   { title: 'Name', dataIndex: 'name', key: 'name' },
-  { title: 'Base Unit', dataIndex: 'baseUnitName', key: 'baseUnitName' }
+  { title: 'Base Unit', dataIndex: ['baseUnit', 'code'], key: 'baseUnitName' }
 ];
 
 export default function ItemsList() {

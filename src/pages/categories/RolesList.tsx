@@ -27,7 +27,7 @@ export default function RolesList() {
 
   const columns = [
     { title: 'ID', dataIndex: 'id', key: 'id', width: 80 },
-    { title: 'Role Name', dataIndex: 'roleName', key: 'roleName' },
+    { title: 'Role Name', dataIndex: 'role_name', key: 'roleName' },
     { title: 'Actions', key: 'actions', render: (_: any, record: any) => (
       <Space>
         <Button icon={<EditOutlined />} onClick={() => navigate(`/roles/${record.id}/edit`)} />

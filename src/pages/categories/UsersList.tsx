@@ -29,7 +29,7 @@ export default function UsersList() {
     { title: 'ID', dataIndex: 'id', key: 'id', width: 80 },
     { title: 'Username', dataIndex: 'username', key: 'username' },
     { title: 'Email', dataIndex: 'email', key: 'email' },
-    { title: 'Roles', dataIndex: 'roles', key: 'roles', render: (r: any) => (r || []).join(', ') },
+    { title: 'Roles', key: 'roles', dataIndex: ['role', 'role_name'] },
     {
       title: 'Actions',
       key: 'actions',
