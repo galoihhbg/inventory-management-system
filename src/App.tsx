@@ -22,7 +22,15 @@ import BaseUnitsList from './pages/categories/BaseUnitsList';
 import UserForm from './pages/categories/UserForm';
 import RoleForm from './pages/categories/RoleForm';
 import ItemForm from './pages/categories/ItemForm';
+import PartnerForm from './pages/categories/PartnerForm';
+import BinForm from './pages/categories/BinForm';
+import BaseUnitForm from './pages/categories/BaseUnitForm';
 import RoleAssign from './pages/RoleManagement/RoleAssign';
+
+// Purchase Orders
+import PurchaseOrdersList from './pages/categories/PurchaseOrdersList';
+import PurchaseOrderForm from './pages/categories/PurchaseOrderForm';
+import PurchaseOrderDetail from './pages/categories/PurchaseOrderDetail';
 
 const { Header, Sider, Content } = Layout;
 
@@ -70,10 +78,25 @@ function App() {
               <Route path="/items/new" element={<ProtectedRoute roles={['admin','manager']}><ItemForm /></ProtectedRoute>} />
               <Route path="/items/:id/edit" element={<ProtectedRoute roles={['admin','manager']}><ItemForm /></ProtectedRoute>} />
 
-              {/* Other lists */}
+              {/* Partners */}
               <Route path="/partners" element={<ProtectedRoute roles={['admin','manager']}><PartnersList /></ProtectedRoute>} />
+              <Route path="/partners/new" element={<ProtectedRoute roles={['admin','manager']}><PartnerForm /></ProtectedRoute>} />
+              <Route path="/partners/:id/edit" element={<ProtectedRoute roles={['admin','manager']}><PartnerForm /></ProtectedRoute>} />
+
+              {/* Bins */}
               <Route path="/bins" element={<ProtectedRoute roles={['admin','manager']}><BinsList /></ProtectedRoute>} />
+              <Route path="/bins/new" element={<ProtectedRoute roles={['admin','manager']}><BinForm /></ProtectedRoute>} />
+              <Route path="/bins/:id/edit" element={<ProtectedRoute roles={['admin','manager']}><BinForm /></ProtectedRoute>} />
+
+              {/* Base Units */}
               <Route path="/base-units" element={<ProtectedRoute roles={['admin','manager']}><BaseUnitsList /></ProtectedRoute>} />
+              <Route path="/base-units/new" element={<ProtectedRoute roles={['admin','manager']}><BaseUnitForm /></ProtectedRoute>} />
+              <Route path="/base-units/:id/edit" element={<ProtectedRoute roles={['admin','manager']}><BaseUnitForm /></ProtectedRoute>} />
+
+              {/* Purchase Orders */}
+              <Route path="/purchase-orders" element={<ProtectedRoute roles={['admin','manager']}><PurchaseOrdersList /></ProtectedRoute>} />
+              <Route path="/purchase-orders/new" element={<ProtectedRoute roles={['admin','manager']}><PurchaseOrderForm /></ProtectedRoute>} />
+              <Route path="/purchase-orders/:id" element={<ProtectedRoute roles={['admin','manager']}><PurchaseOrderDetail /></ProtectedRoute>} />
 
               {/* Settings */}
               <Route path="/settings/display" element={<ProtectedRoute roles="admin"><DisplaySettings /></ProtectedRoute>} />
