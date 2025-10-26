@@ -33,7 +33,7 @@ export default function InventoryStockList() {
   const { data, isLoading } = useQuery<InventoryStockResponse>({
     queryKey: ['/inventory-stock/items/aggregation', warehouseId],
     queryFn: async () => {
-      const params: any = { limit: 20 };
+      const params: any = { limit: 50 };
       if (warehouseId !== undefined) {
         params.warehouseId = warehouseId;
       }
@@ -93,7 +93,8 @@ export default function InventoryStockList() {
           />
           <Input.Search
             placeholder="Search by code or name"
-            onSearch={(v) => setSearchText(v)}
+            onChange={(e) => setSearchText(e.target.value)}
+            allowClear
             style={{ width: 240 }}
           />
         </div>
