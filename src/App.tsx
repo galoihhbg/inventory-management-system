@@ -32,6 +32,9 @@ import PurchaseOrdersList from './pages/categories/PurchaseOrdersList';
 import PurchaseOrderForm from './pages/categories/PurchaseOrderForm';
 import PurchaseOrderDetail from './pages/categories/PurchaseOrderDetail';
 
+// Inventory Stock
+import InventoryStockList from './pages/categories/InventoryStockList';
+
 const { Header, Sider, Content } = Layout;
 
 function App() {
@@ -97,6 +100,9 @@ function App() {
               <Route path="/purchase-orders" element={<ProtectedRoute roles={['admin','manager']}><PurchaseOrdersList /></ProtectedRoute>} />
               <Route path="/purchase-orders/new" element={<ProtectedRoute roles={['admin','manager']}><PurchaseOrderForm /></ProtectedRoute>} />
               <Route path="/purchase-orders/:id" element={<ProtectedRoute roles={['admin','manager']}><PurchaseOrderDetail /></ProtectedRoute>} />
+
+              {/* Inventory Stock */}
+              <Route path="/inventory-stock" element={<ProtectedRoute roles={['admin','manager','user']}><InventoryStockList /></ProtectedRoute>} />
 
               {/* Settings */}
               <Route path="/settings/display" element={<ProtectedRoute roles="admin"><DisplaySettings /></ProtectedRoute>} />
