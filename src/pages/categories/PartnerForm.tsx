@@ -1,27 +1,27 @@
 import React, { useEffect } from 'react';
 import { Card, Form, Input, Button, notification } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useEntityCRUD } from '../../api/hooks';
+import { useEntityCRUD, useEntityDetail } from '../../api/hooks';
+import { Partner } from '../../types';
 
 export default function PartnerForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [form] = Form.useForm();
-  const { create, update, getOne } = useEntityCRUD('/partners');
+  const { create, update } = useEntityCRUD('/partners');
+  const { data: partner, isLoading } = useEntityDetail<Partner>('/partners', id);
 
   useEffect(() => {
-    if (id) {
-      (async () => {
-        try {
-          const res = await getOne(id);
-          const d = res.data || res;
-          form.setFieldsValue(d);
-        } catch (err: any) {
-          notification.error({ message: 'Could not fetch partner', description: err?.message });
-        }
-      })();
+    if (partner) {
+      form.setFieldsValue({
+        code: partner.code,
+        name: partner.name,
+        phoneNumber: partner.phoneNumber,
+        address: partner.address,
+        email: partner.email
+      });
     }
-  }, [id]);
+  }, [partner, form]);
 
   const onFinish = async (values: any) => {
     try {
@@ -39,7 +39,7 @@ export default function PartnerForm() {
   };
 
   return (
-    <Card title={id ? 'Edit Partner' : 'New Partner'}>
+    <Card title={id ? 'Edit Partner' : 'New Partner'} loading={isLoading}>
       <Form form={form} layout="vertical" onFinish={onFinish} initialValues={{ code: '', name: '', phoneNumber: '', address: '', email: '' }}>
         <Form.Item name="code" label="Code" rules={[{ required: true, message: 'Code required' }]}>
           <Input />

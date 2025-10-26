@@ -1,8 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import { Button, Table, Space, notification, Input, Select, Tag } from 'antd';
-import { PlusOutlined, EyeOutlined } from '@ant-design/icons';
+import { PlusOutlined, EyeOutlined, ReloadOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import { useEntityList } from '../../api/hooks';
+import { PurchaseOrder } from '../../types';
 
 const { Option } = Select;
 
@@ -52,12 +53,17 @@ export default function PurchaseOrdersList() {
     return p;
   }, [statusFilter]);
 
-  const { data, isLoading } = useEntityList<any>('/purchase-orders', params);
+  const { data, isLoading, refetch } = useEntityList<PurchaseOrder>('/purchase-orders', params);
+
+  const handleRefresh = () => {
+    refetch();
+    notification.success({ message: 'Data refreshed' });
+  };
 
   const dataSource = useMemo(() => {
     const rows = data?.data || [];
     if (!q.trim()) return rows;
-    return rows.filter((r: any) => JSON.stringify(r).toLowerCase().includes(q.toLowerCase()));
+    return rows.filter((r) => JSON.stringify(r).toLowerCase().includes(q.toLowerCase()));
   }, [data, q]);
 
   const cols = [
@@ -65,7 +71,7 @@ export default function PurchaseOrdersList() {
     {
       title: 'Actions',
       key: 'actions',
-      render: (_: any, record: any) => (
+      render: (_: any, record: PurchaseOrder) => (
         <Space>
           <Button icon={<EyeOutlined />} onClick={() => navigate(`/purchase-orders/${record.id}`)}>
             View
@@ -91,6 +97,9 @@ export default function PurchaseOrdersList() {
             <Option value="confirmed">Confirmed</Option>
           </Select>
           <Input.Search placeholder="Search" onSearch={(v) => setQ(v)} style={{ width: 240 }} />
+          <Button icon={<ReloadOutlined />} onClick={handleRefresh}>
+            Refresh
+          </Button>
           <Link to="/purchase-orders/new">
             <Button type="primary" icon={<PlusOutlined />}>
               New

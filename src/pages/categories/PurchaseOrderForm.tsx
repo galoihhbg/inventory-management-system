@@ -4,6 +4,7 @@ import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useEntityList } from '../../api/hooks';
 import client from '../../api/client';
+import { Partner, Item } from '../../types';
 
 const { Option } = Select;
 
@@ -23,10 +24,10 @@ export default function PurchaseOrderForm() {
   const [quantity, setQuantity] = useState<number>(1);
   const [unitPrice, setUnitPrice] = useState<number>(0);
 
-  const { data: partnersData, isLoading: partnersLoading } = useEntityList<any>('/partners', { limit: 200 });
+  const { data: partnersData, isLoading: partnersLoading } = useEntityList<Partner>('/partners', { limit: 200 });
   const partners = useMemo(() => partnersData?.data || [], [partnersData]);
 
-  const { data: itemsData, isLoading: itemsLoading } = useEntityList<any>('/items', { limit: 200 });
+  const { data: itemsData, isLoading: itemsLoading } = useEntityList<Item>('/items', { limit: 200 });
   const availableItems = useMemo(() => itemsData?.data || [], [itemsData]);
 
   const handleAddItem = () => {
@@ -35,7 +36,7 @@ export default function PurchaseOrderForm() {
       return;
     }
 
-    const item = availableItems.find((i: any) => i.id === selectedItemId);
+    const item = availableItems.find((i) => i.id === selectedItemId);
     const newItem: OrderItem = {
       key: `${selectedItemId}-${Date.now()}`,
       itemId: selectedItemId,
@@ -132,7 +133,7 @@ export default function PurchaseOrderForm() {
               option?.children?.toLowerCase().includes(input.toLowerCase())
             }
           >
-            {partners.map((p: any) => (
+            {partners.map((p) => (
               <Option key={p.id} value={p.id}>
                 {p.code ? `${p.code} - ${p.name}` : p.name || `Partner ${p.id}`}
               </Option>
@@ -156,7 +157,7 @@ export default function PurchaseOrderForm() {
                     option?.children?.toLowerCase().includes(input.toLowerCase())
                   }
                 >
-                  {availableItems.map((item: any) => (
+                  {availableItems.map((item) => (
                     <Option key={item.id} value={item.id}>
                       {item.code ? `${item.code} - ${item.name}` : item.name || `Item ${item.id}`}
                     </Option>
