@@ -40,9 +40,13 @@ export default function PurchaseOrderDetail() {
     }
   };
 
-  const handleRefresh = () => {
-    fetchPurchaseOrder();
-    notification.success({ message: 'Data refreshed' });
+  const handleRefresh = async () => {
+    try {
+      await fetchPurchaseOrder();
+      notification.success({ message: 'Data refreshed' });
+    } catch (err) {
+      // Error is already handled in fetchPurchaseOrder
+    }
   };
 
   const handleConfirm = async (values: any) => {
@@ -143,8 +147,8 @@ export default function PurchaseOrderDetail() {
             {purchaseOrder.confirmedAt ? new Date(purchaseOrder.confirmedAt).toLocaleString() : '-'}
           </Descriptions.Item>
           <Descriptions.Item label="Creator">
-            {(purchaseOrder as any).creator ? 
-              `${(purchaseOrder as any).creator.username} (${(purchaseOrder as any).creator.email})` : 
+            {purchaseOrder.creator ? 
+              `${purchaseOrder.creator.username} (${purchaseOrder.creator.email})` : 
               '-'
             }
           </Descriptions.Item>

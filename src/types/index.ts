@@ -91,6 +91,11 @@ export interface PurchaseOrder {
   confirmedAt?: string;
   createdAt?: string;
   updatedAt?: string;
+  creator?: {
+    id: number;
+    username: string;
+    email: string;
+  };
 }
 
 export interface ListResponse<T> {
