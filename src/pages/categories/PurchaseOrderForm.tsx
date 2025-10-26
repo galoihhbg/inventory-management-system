@@ -101,9 +101,9 @@ export default function PurchaseOrderForm() {
       notification.success({ message: 'Purchase order created successfully' });
       navigate('/purchase-orders');
     } catch (err: any) {
-      notification.error({ 
-        message: 'Failed to create purchase order', 
-        description: err?.response?.data?.message || err.message 
+      notification.error({
+        message: 'Failed to create purchase order',
+        description: err?.response?.data?.message || err.message
       });
     }
   };
@@ -153,9 +153,9 @@ export default function PurchaseOrderForm() {
       title: 'Action',
       key: 'action',
       render: (_: any, record: OrderItem) => (
-        <Button 
-          danger 
-          icon={<DeleteOutlined />} 
+        <Button
+          danger
+          icon={<DeleteOutlined />}
           onClick={() => handleRemoveItem(record.key)}
         />
       )
@@ -165,13 +165,13 @@ export default function PurchaseOrderForm() {
   return (
     <Card title="New Purchase Order">
       <Form form={form} layout="vertical" onFinish={onFinish}>
-        <Form.Item 
-          name="partnerId" 
-          label="Partner" 
+        <Form.Item
+          name="partnerId"
+          label="Partner"
           rules={[{ required: true, message: 'Partner required' }]}
         >
-          <Select 
-            placeholder="Select partner" 
+          <Select
+            placeholder="Select partner"
             loading={partnersLoading}
             showSearch
             filterOption={(input, option: any) =>
@@ -188,9 +188,9 @@ export default function PurchaseOrderForm() {
 
         {/* Bin Selection - Once for entire order */}
         <Card title="Delivery Information" className="mb-4">
-          <Form.Item 
-            name="binId" 
-            label="Delivery Bin Location" 
+          <Form.Item
+            name="binId"
+            label="Delivery Bin Location"
             rules={[{ required: true, message: 'Please select delivery bin location' }]}
           >
             <Select
@@ -220,7 +220,7 @@ export default function PurchaseOrderForm() {
         <Card title="Order Items" className="mb-4">
           <Space direction="vertical" style={{ width: '100%' }}>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
-              <div>
+              <div className="min-h-[80px]">
                 <label className="block mb-1 text-sm">Item</label>
                 <Select
                   placeholder="Select item"
@@ -250,7 +250,8 @@ export default function PurchaseOrderForm() {
                   </div>
                 )}
               </div>
-              <div>
+
+              <div className="min-h-[80px]">
                 <label className="block mb-1 text-sm">Quantity</label>
                 <InputNumber
                   min={1}
@@ -264,7 +265,8 @@ export default function PurchaseOrderForm() {
                   </div>
                 )}
               </div>
-              <div>
+
+              <div className="min-h-[80px]">
                 <label className="block mb-1 text-sm">Unit Price</label>
                 <InputNumber
                   min={0}
@@ -275,10 +277,11 @@ export default function PurchaseOrderForm() {
                   prefix="$"
                 />
               </div>
-              <div>
-                <Button 
-                  type="primary" 
-                  icon={<PlusOutlined />} 
+
+              <div className="min-h-[80px] flex items-center">
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
                   onClick={handleAddItem}
                   style={{ width: '100%' }}
                   disabled={!selectedBinId}
