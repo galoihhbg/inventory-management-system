@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo } from 'react';
 import { Card, Form, Input, Button, notification, Select, Spin } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useEntityCRUD, useEntityList } from '../../api/hooks';
+import { useEntityCRUD, useEntityList, useEntityDetail } from '../../api/hooks';
+import { Item, BaseUnit } from '../../types';
 
 const { Option } = Select;
 
@@ -9,29 +10,22 @@ export default function ItemForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [form] = Form.useForm();
-  const { create, update, getOne } = useEntityCRUD('/items');
+  const { create, update } = useEntityCRUD('/items');
+  const { data: item, isLoading } = useEntityDetail<Item>('/items', id);
 
-  const { data: baseUnitsData, isLoading: baseUnitsLoading } = useEntityList<any>('/base-units', { limit: 200 });
+  const { data: baseUnitsData, isLoading: baseUnitsLoading } = useEntityList<BaseUnit>('/base-units', { limit: 200 });
   const baseUnits = useMemo(() => baseUnitsData?.data || [], [baseUnitsData]);
 
   useEffect(() => {
-    if (id) {
-      (async () => {
-        try {
-          const res = await getOne(id);
-          const payload = res?.data || res;
-          form.setFieldsValue({
-            code: payload.code,
-            name: payload.name,
-            baseUnitId: payload.baseUnitId ?? (payload.baseUnit ? payload.baseUnit.id : undefined),
-            description: payload.description
-          });
-        } catch (err: any) {
-          notification.error({ message: 'Could not fetch item', description: err?.message });
-        }
-      })();
+    if (item) {
+      form.setFieldsValue({
+        code: item.code,
+        name: item.name,
+        baseUnitId: item.baseUnitId ?? (item.baseUnit ? item.baseUnit.id : undefined),
+        description: item.description
+      });
     }
-  }, [id]);
+  }, [item, form]);
 
   const onFinish = async (values: any) => {
     try {
@@ -49,7 +43,7 @@ export default function ItemForm() {
   };
 
   return (
-    <Card title={id ? 'Edit Item' : 'New Item'}>
+    <Card title={id ? 'Edit Item' : 'New Item'} loading={isLoading}>
       <Form form={form} layout="vertical" onFinish={onFinish} initialValues={{ code: '', name: '', baseUnitId: undefined, description: '' }}>
         <Form.Item name="code" label="Code" rules={[{ required: true, message: 'Code required' }]}>
           <Input />
@@ -64,7 +58,7 @@ export default function ItemForm() {
             <Spin />
           ) : (
             <Select placeholder="Select base unit">
-              {baseUnits.map((b: any) => (
+              {baseUnits.map((b) => (
                 <Option key={b.id} value={b.id}>
                   {b.code ? `${b.code} - ${b.description || ''}` : b.description || `Unit ${b.id}`}
                 </Option>

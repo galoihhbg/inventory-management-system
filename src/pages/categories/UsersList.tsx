@@ -1,12 +1,13 @@
 import React, { useMemo, useState } from 'react';
 import { Button, Table, Space, Popconfirm, notification, Input } from 'antd';
 import { useEntityList, useEntityCRUD } from '../../api/hooks';
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, DeleteOutlined, ReloadOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
+import { User } from '../../types';
 
 export default function UsersList() {
   const [q, setQ] = useState('');
-  const { data, isLoading } = useEntityList<any>('/users', { limit: 50 });
+  const { data, isLoading, refetch } = useEntityList<User>('/users', { limit: 50 });
   const { remove } = useEntityCRUD('/users');
   const navigate = useNavigate();
 
@@ -19,10 +20,15 @@ export default function UsersList() {
     }
   };
 
+  const handleRefresh = () => {
+    refetch();
+    notification.success({ message: 'Data refreshed' });
+  };
+
   const dataSource = useMemo(() => {
     const rows = data?.data || [];
     if (!q.trim()) return rows;
-    return rows.filter((r: any) => (r.username + r.email).toLowerCase().includes(q.toLowerCase()));
+    return rows.filter((r) => (r.username + r.email).toLowerCase().includes(q.toLowerCase()));
   }, [data, q]);
 
   const columns = [
@@ -33,7 +39,7 @@ export default function UsersList() {
     {
       title: 'Actions',
       key: 'actions',
-      render: (_: any, record: any) => (
+      render: (_: any, record: User) => (
         <Space>
           <Button icon={<EditOutlined />} onClick={() => navigate(`/users/${record.id}/edit`)} />
           <Popconfirm title="Delete?" onConfirm={() => handleDelete(record.id)}>
@@ -50,6 +56,9 @@ export default function UsersList() {
         <h3>Users</h3>
         <Space>
           <Input.Search placeholder="Search" onSearch={(v) => setQ(v)} style={{ width: 240 }} />
+          <Button icon={<ReloadOutlined />} onClick={handleRefresh}>
+            Refresh
+          </Button>
           <Link to="/users/new">
             <Button type="primary" icon={<PlusOutlined />}>
               New User

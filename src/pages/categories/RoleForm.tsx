@@ -1,27 +1,21 @@
 import React, { useEffect } from 'react';
 import { Card, Form, Input, Button, notification } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useEntityCRUD } from '../../api/hooks';
+import { useEntityCRUD, useEntityDetail } from '../../api/hooks';
+import { Role } from '../../types';
 
 export default function RoleForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [form] = Form.useForm();
-  const { create, update, getOne } = useEntityCRUD('/roles');
+  const { create, update } = useEntityCRUD('/roles');
+  const { data: role, isLoading } = useEntityDetail<Role>('/roles', id);
 
   useEffect(() => {
-    if (id) {
-      (async () => {
-        try {
-          const res = await getOne(id);
-          const payload = res?.data || res;
-          form.setFieldsValue({ roleName: payload.roleName || payload.name });
-        } catch (err: any) {
-          notification.error({ message: 'Could not fetch role', description: err?.message });
-        }
-      })();
+    if (role) {
+      form.setFieldsValue({ roleName: role.roleName || role.name });
     }
-  }, [id]);
+  }, [role, form]);
 
   const onFinish = async (values: any) => {
     try {
@@ -39,7 +33,7 @@ export default function RoleForm() {
   };
 
   return (
-    <Card title={id ? 'Edit Role' : 'New Role'}>
+    <Card title={id ? 'Edit Role' : 'New Role'} loading={isLoading}>
       <Form form={form} layout="vertical" onFinish={onFinish} initialValues={{ roleName: '' }}>
         <Form.Item name="roleName" label="Role Name" rules={[{ required: true, message: 'Role name required' }]}>
           <Input />

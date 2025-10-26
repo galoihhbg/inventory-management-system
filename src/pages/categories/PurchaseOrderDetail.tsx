@@ -1,41 +1,51 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Card, Button, notification, Descriptions, Table, Space, Tag, Modal, Form, Select, Spin } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
-import { CheckCircleOutlined, ArrowLeftOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, ArrowLeftOutlined, ReloadOutlined } from '@ant-design/icons';
 import client from '../../api/client';
 import { useEntityList } from '../../api/hooks';
+import { PurchaseOrder, Bin } from '../../types';
 
 const { Option } = Select;
 
 export default function PurchaseOrderDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [purchaseOrder, setPurchaseOrder] = useState<any>(null);
+  const [purchaseOrder, setPurchaseOrder] = useState<PurchaseOrder | null>(null);
   const [loading, setLoading] = useState(true);
   const [confirmModalVisible, setConfirmModalVisible] = useState(false);
   const [confirmForm] = Form.useForm();
 
-  const { data: binsData, isLoading: binsLoading } = useEntityList<any>('/bins', { limit: 200 });
+  const { data: binsData, isLoading: binsLoading } = useEntityList<Bin>('/bins', { limit: 200 });
   const bins = useMemo(() => binsData?.data || [], [binsData]);
 
   useEffect(() => {
     fetchPurchaseOrder();
   }, [id]);
 
-  const fetchPurchaseOrder = async () => {
+  const fetchPurchaseOrder = async (): Promise<boolean> => {
     try {
       setLoading(true);
       const response = await client.get(`/purchase-orders/${id}`);
       const data = response.data?.purchaseOrder || response.data;
       setPurchaseOrder(data);
+      return true;
     } catch (err: any) {
       notification.error({ 
         message: 'Failed to fetch purchase order', 
         description: err?.response?.data?.message || err.message 
       });
       navigate('/purchase-orders');
+      return false;
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleRefresh = async () => {
+    const success = await fetchPurchaseOrder();
+    if (success) {
+      notification.success({ message: 'Data refreshed' });
     }
   };
 
@@ -106,6 +116,9 @@ export default function PurchaseOrderDetail() {
       <Space className="mb-4">
         <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/purchase-orders')}>
           Back
+        </Button>
+        <Button icon={<ReloadOutlined />} onClick={handleRefresh}>
+          Refresh
         </Button>
         {purchaseOrder.purchaseOrderStatus === 'draft' && (
           <Button 
@@ -192,7 +205,7 @@ export default function PurchaseOrderDetail() {
                 option?.children?.toLowerCase().includes(input.toLowerCase())
               }
             >
-              {bins.map((b: any) => (
+              {bins.map((b) => (
                 <Option key={b.id} value={b.id}>
                   {b.locationCode} - {b.warehouse?.name || `Warehouse ${b.warehouseId}`}
                 </Option>

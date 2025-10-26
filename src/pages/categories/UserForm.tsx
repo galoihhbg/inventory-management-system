@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo } from 'react';
 import { Card, Form, Input, Button, notification, Select, Spin } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useEntityCRUD, useEntityList } from '../../api/hooks';
+import { useEntityCRUD, useEntityList, useEntityDetail } from '../../api/hooks';
+import { User, Role } from '../../types';
 
 const { Option } = Select;
 
@@ -9,28 +10,21 @@ export default function UserForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [form] = Form.useForm();
-  const { create, update, getOne } = useEntityCRUD('/users');
-  const { data: rolesData, isLoading: rolesLoading } = useEntityList<any>('/roles', { limit: 100 });
+  const { create, update } = useEntityCRUD('/users');
+  const { data: user, isLoading } = useEntityDetail<User>('/users', id);
+  const { data: rolesData, isLoading: rolesLoading } = useEntityList<Role>('/roles', { limit: 100 });
 
   const roles = useMemo(() => rolesData?.data || [], [rolesData]);
 
   useEffect(() => {
-    if (id) {
-      (async () => {
-        try {
-          const res = await getOne(id);
-          const payload = res?.data || res;
-          form.setFieldsValue({
-            username: payload.username,
-            email: payload.email,
-            roleId: payload.roleId ?? (payload.role ? payload.role.id : undefined)
-          });
-        } catch (err: any) {
-          notification.error({ message: 'Could not fetch user', description: err?.message });
-        }
-      })();
+    if (user) {
+      form.setFieldsValue({
+        username: user.username,
+        email: user.email,
+        roleId: user.roleId ?? (user.role ? user.role.id : undefined)
+      });
     }
-  }, [id]);
+  }, [user, form]);
 
   const onFinish = async (values: any) => {
     try {
@@ -48,7 +42,7 @@ export default function UserForm() {
   };
 
   return (
-    <Card title={id ? 'Edit User' : 'New User'}>
+    <Card title={id ? 'Edit User' : 'New User'} loading={isLoading}>
       <Form
         form={form}
         layout="vertical"
@@ -80,7 +74,7 @@ export default function UserForm() {
             <Spin />
           ) : (
             <Select placeholder="Select a role" allowClear>
-              {roles.map((r: any) => (
+              {roles.map((r) => (
                 <Option key={r.id} value={r.id}>
                   {r.roleName || r.name || `Role ${r.id}`}
                 </Option>

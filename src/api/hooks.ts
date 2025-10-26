@@ -1,10 +1,6 @@
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import client from './client';
-
-type ListResponse<T> = {
-  data: T[];
-  meta?: any;
-};
+import { ListResponse } from '../types';
 
 export function useEntityList<T = any>(endpoint: string, params?: Record<string, any>) {
   return useQuery<ListResponse<T>>({
@@ -14,6 +10,17 @@ export function useEntityList<T = any>(endpoint: string, params?: Record<string,
       return res.data;
     },
     placeholderData: keepPreviousData
+  });
+}
+
+export function useEntityDetail<T = any>(endpoint: string, id: string | number | undefined, enabled: boolean = true) {
+  return useQuery<T>({
+    queryKey: [endpoint, id],
+    queryFn: async () => {
+      const res = await client.get(`${endpoint}/${id}`);
+      return res.data?.data || res.data;
+    },
+    enabled: enabled && !!id
   });
 }
 
@@ -46,12 +53,5 @@ export function useEntityCRUD(endpoint: string) {
     onSuccess: () => qc.invalidateQueries({ queryKey: [endpoint] })
   });
 
-  const getOne = useMutation({
-    mutationFn: async (id: string | number) => {
-      const res = await client.get(`${endpoint}/${id}`);
-      return res.data;
-    }
-  });
-
-  return { create, update, remove, getOne };
+  return { create, update, remove };
 }

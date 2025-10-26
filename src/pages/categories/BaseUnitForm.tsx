@@ -1,27 +1,24 @@
 import React, { useEffect } from 'react';
 import { Card, Form, Input, Button, notification } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useEntityCRUD } from '../../api/hooks';
+import { useEntityCRUD, useEntityDetail } from '../../api/hooks';
+import { BaseUnit } from '../../types';
 
 export default function BaseUnitForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [form] = Form.useForm();
-  const { create, update, getOne } = useEntityCRUD('/base-units');
+  const { create, update } = useEntityCRUD('/base-units');
+  const { data: baseUnit, isLoading } = useEntityDetail<BaseUnit>('/base-units', id);
 
   useEffect(() => {
-    if (id) {
-      (async () => {
-        try {
-          const res = await getOne(id);
-          const d = res.data || res;
-          form.setFieldsValue(d);
-        } catch (err: any) {
-          notification.error({ message: 'Could not fetch base unit', description: err?.message });
-        }
-      })();
+    if (baseUnit) {
+      form.setFieldsValue({
+        code: baseUnit.code,
+        description: baseUnit.description
+      });
     }
-  }, [id]);
+  }, [baseUnit, form]);
 
   const onFinish = async (values: any) => {
     try {
@@ -39,7 +36,7 @@ export default function BaseUnitForm() {
   };
 
   return (
-    <Card title={id ? 'Edit Base Unit' : 'New Base Unit'}>
+    <Card title={id ? 'Edit Base Unit' : 'New Base Unit'} loading={isLoading}>
       <Form form={form} layout="vertical" onFinish={onFinish} initialValues={{ code: '', description: '' }}>
         <Form.Item name="code" label="Code" rules={[{ required: true, message: 'Code required' }]}>
           <Input />

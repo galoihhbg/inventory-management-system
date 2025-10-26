@@ -1,27 +1,25 @@
 import React, { useEffect } from 'react';
 import { Card, Form, Input, Button, notification } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useEntityCRUD } from '../../api/hooks';
+import { useEntityCRUD, useEntityDetail } from '../../api/hooks';
+import { Warehouse } from '../../types';
 
 export default function WarehouseForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [form] = Form.useForm();
-  const { create, update, getOne } = useEntityCRUD('/warehouses');
+  const { create, update } = useEntityCRUD('/warehouses');
+  const { data: warehouse, isLoading } = useEntityDetail<Warehouse>('/warehouses', id);
 
   useEffect(() => {
-    if (id) {
-      (async () => {
-        try {
-          const res = await getOne(id);
-          const d = res.data || res;
-          form.setFieldsValue(d);
-        } catch (err: any) {
-          notification.error({ message: 'Could not fetch', description: err?.message });
-        }
-      })();
+    if (warehouse) {
+      form.setFieldsValue({
+        name: warehouse.name,
+        code: warehouse.code,
+        description: warehouse.description
+      });
     }
-  }, [id]);
+  }, [warehouse, form]);
 
   const onFinish = async (values: any) => {
     try {
@@ -39,7 +37,7 @@ export default function WarehouseForm() {
   };
 
   return (
-    <Card title={id ? 'Edit Warehouse' : 'New Warehouse'}>
+    <Card title={id ? 'Edit Warehouse' : 'New Warehouse'} loading={isLoading}>
       <Form form={form} layout="vertical" onFinish={onFinish} initialValues={{ name: '', code: '', description: '' }}>
         <Form.Item name="name" label="Name" rules={[{ required: true, message: 'Name required' }]}>
           <Input />

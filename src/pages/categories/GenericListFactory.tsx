@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, Table, Space, Popconfirm, notification, Input } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, DeleteOutlined, ReloadOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import { useEntityList, useEntityCRUD } from '../../api/hooks';
 import { useMemo, useState } from 'react';
@@ -15,7 +15,7 @@ type Props = {
 
 export default function GenericList({ endpoint, title, columns, createPath, editPath }: Props) {
   const [q, setQ] = useState('');
-  const { data, isLoading } = useEntityList<any>(endpoint, { limit: 50 });
+  const { data, isLoading, refetch } = useEntityList<any>(endpoint, { limit: 50 });
   const { remove } = useEntityCRUD(endpoint);
   const navigate = useNavigate();
 
@@ -26,6 +26,11 @@ export default function GenericList({ endpoint, title, columns, createPath, edit
     } catch (err: any) {
       notification.error({ message: 'Delete failed', description: err?.response?.data?.message || err.message });
     }
+  };
+
+  const handleRefresh = () => {
+    refetch();
+    notification.success({ message: 'Data refreshed' });
   };
 
   const dataSource = useMemo(() => {
@@ -56,6 +61,9 @@ export default function GenericList({ endpoint, title, columns, createPath, edit
         <h3>{title}</h3>
         <Space>
           <Input.Search placeholder="Search" onSearch={(v) => setQ(v)} style={{ width: 240 }} />
+          <Button icon={<ReloadOutlined />} onClick={handleRefresh}>
+            Refresh
+          </Button>
           {createPath && (
             <Link to={createPath}>
               <Button type="primary" icon={<PlusOutlined />}>

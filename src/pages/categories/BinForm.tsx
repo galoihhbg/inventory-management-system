@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo } from 'react';
 import { Card, Form, Input, Button, notification, Select, Spin } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useEntityCRUD, useEntityList } from '../../api/hooks';
+import { useEntityCRUD, useEntityList, useEntityDetail } from '../../api/hooks';
+import { Bin, Warehouse } from '../../types';
 
 const { Option } = Select;
 
@@ -9,28 +10,21 @@ export default function BinForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [form] = Form.useForm();
-  const { create, update, getOne } = useEntityCRUD('/bins');
+  const { create, update } = useEntityCRUD('/bins');
+  const { data: bin, isLoading } = useEntityDetail<Bin>('/bins', id);
 
-  const { data: warehousesData, isLoading: warehousesLoading } = useEntityList<any>('/warehouses', { limit: 200 });
+  const { data: warehousesData, isLoading: warehousesLoading } = useEntityList<Warehouse>('/warehouses', { limit: 200 });
   const warehouses = useMemo(() => warehousesData?.data || [], [warehousesData]);
 
   useEffect(() => {
-    if (id) {
-      (async () => {
-        try {
-          const res = await getOne(id);
-          const d = res.data || res;
-          form.setFieldsValue({
-            locationCode: d.locationCode,
-            warehouseId: d.warehouseId ?? (d.warehouse ? d.warehouse.id : undefined),
-            description: d.description
-          });
-        } catch (err: any) {
-          notification.error({ message: 'Could not fetch bin', description: err?.message });
-        }
-      })();
+    if (bin) {
+      form.setFieldsValue({
+        locationCode: bin.locationCode,
+        warehouseId: bin.warehouseId ?? (bin.warehouse ? bin.warehouse.id : undefined),
+        description: bin.description
+      });
     }
-  }, [id]);
+  }, [bin, form]);
 
   const onFinish = async (values: any) => {
     try {
@@ -48,7 +42,7 @@ export default function BinForm() {
   };
 
   return (
-    <Card title={id ? 'Edit Bin' : 'New Bin'}>
+    <Card title={id ? 'Edit Bin' : 'New Bin'} loading={isLoading}>
       <Form form={form} layout="vertical" onFinish={onFinish} initialValues={{ locationCode: '', warehouseId: undefined, description: '' }}>
         <Form.Item name="locationCode" label="Location Code" rules={[{ required: true, message: 'Location code required' }]}>
           <Input />
@@ -59,7 +53,7 @@ export default function BinForm() {
             <Spin />
           ) : (
             <Select placeholder="Select warehouse">
-              {warehouses.map((w: any) => (
+              {warehouses.map((w) => (
                 <Option key={w.id} value={w.id}>
                   {w.code ? `${w.code} - ${w.name}` : w.name || `Warehouse ${w.id}`}
                 </Option>
