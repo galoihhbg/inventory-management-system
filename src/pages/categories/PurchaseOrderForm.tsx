@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { Card, Form, Button, notification, Select, InputNumber, Table, Space } from 'antd';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Card, Form, Button, notification, Select, InputNumber, Table, Space, Spin } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useEntityList } from '../../api/hooks';
@@ -13,6 +13,9 @@ type OrderItem = {
   itemName?: string;
   quantityOrdered: number;
   unitPrice: number;
+  binId: number;
+  binLocationCode?: string;
+  warehouseName?: string;
 };
 
 export default function PurchaseOrderForm() {
@@ -20,8 +23,11 @@ export default function PurchaseOrderForm() {
   const [form] = Form.useForm();
   const [items, setItems] = useState<OrderItem[]>([]);
   const [selectedItemId, setSelectedItemId] = useState<number | undefined>(undefined);
+  const [selectedBinId, setSelectedBinId] = useState<number | undefined>(undefined);
   const [quantity, setQuantity] = useState<number>(1);
   const [unitPrice, setUnitPrice] = useState<number>(0);
+  const [currentStock, setCurrentStock] = useState<number | null>(null);
+  const [loadingStock, setLoadingStock] = useState(false);
 
   const { data: partnersData, isLoading: partnersLoading } = useEntityList<any>('/partners', { limit: 200 });
   const partners = useMemo(() => partnersData?.data || [], [partnersData]);
@@ -29,25 +35,79 @@ export default function PurchaseOrderForm() {
   const { data: itemsData, isLoading: itemsLoading } = useEntityList<any>('/items', { limit: 200 });
   const availableItems = useMemo(() => itemsData?.data || [], [itemsData]);
 
+  const { data: binsData, isLoading: binsLoading } = useEntityList<any>('/bins', { limit: 200 });
+  const bins = useMemo(() => binsData?.data || [], [binsData]);
+
+  // Memoize the selected bin to avoid repeated lookups
+  const selectedBin = useMemo(() => {
+    return bins.find((b: any) => b.id === selectedBinId);
+  }, [bins, selectedBinId]);
+
+  // Fetch current stock when item and bin are selected
+  useEffect(() => {
+    const fetchCurrentStock = async () => {
+      if (!selectedItemId || !selectedBinId || !selectedBin) {
+        setCurrentStock(null);
+        return;
+      }
+
+      if (!selectedBin.warehouseId) {
+        setCurrentStock(null);
+        return;
+      }
+
+      setLoadingStock(true);
+      try {
+        const response = await client.get('/inventory-stock/items/aggregation', {
+          params: {
+            itemId: selectedItemId,
+            warehouseId: selectedBin.warehouseId,
+            limit: 1
+          }
+        });
+        
+        const stockData = response.data?.data?.[0];
+        if (stockData) {
+          setCurrentStock(stockData.totalQuantity || 0);
+        } else {
+          setCurrentStock(0);
+        }
+      } catch (err) {
+        console.error('Failed to fetch stock:', err);
+        setCurrentStock(0);
+      } finally {
+        setLoadingStock(false);
+      }
+    };
+
+    fetchCurrentStock();
+  }, [selectedItemId, selectedBinId, selectedBin]);
+
   const handleAddItem = () => {
-    if (!selectedItemId || quantity <= 0 || unitPrice < 0) {
-      notification.warning({ message: 'Please select an item, quantity, and unit price' });
+    if (!selectedItemId || !selectedBinId || quantity <= 0 || unitPrice < 0) {
+      notification.warning({ message: 'Please select an item, bin location, quantity, and unit price' });
       return;
     }
 
     const item = availableItems.find((i: any) => i.id === selectedItemId);
+    
     const newItem: OrderItem = {
-      key: `${selectedItemId}-${Date.now()}`,
+      key: `${selectedItemId}-${selectedBinId}-${Date.now()}`,
       itemId: selectedItemId,
       itemName: item?.name || `Item ${selectedItemId}`,
       quantityOrdered: quantity,
-      unitPrice: unitPrice
+      unitPrice: unitPrice,
+      binId: selectedBinId,
+      binLocationCode: selectedBin?.locationCode || `Bin ${selectedBinId}`,
+      warehouseName: selectedBin?.warehouse?.name || `Warehouse ${selectedBin?.warehouseId}`
     };
 
     setItems([...items, newItem]);
     setSelectedItemId(undefined);
+    setSelectedBinId(undefined);
     setQuantity(1);
     setUnitPrice(0);
+    setCurrentStock(null);
   };
 
   const handleRemoveItem = (key: string) => {
@@ -66,7 +126,8 @@ export default function PurchaseOrderForm() {
         items: items.map(item => ({
           itemId: item.itemId,
           quantityOrdered: item.quantityOrdered,
-          unitPrice: item.unitPrice
+          unitPrice: item.unitPrice,
+          binId: item.binId
         }))
       };
 
@@ -86,6 +147,16 @@ export default function PurchaseOrderForm() {
       title: 'Item',
       dataIndex: 'itemName',
       key: 'itemName'
+    },
+    {
+      title: 'Bin Location',
+      dataIndex: 'binLocationCode',
+      key: 'binLocationCode'
+    },
+    {
+      title: 'Warehouse',
+      dataIndex: 'warehouseName',
+      key: 'warehouseName'
     },
     {
       title: 'Quantity',
@@ -163,6 +234,26 @@ export default function PurchaseOrderForm() {
                   ))}
                 </Select>
               </div>
+              <div style={{ flex: 1 }}>
+                <label className="block mb-1 text-sm">Bin Location</label>
+                <Select
+                  placeholder="Select bin"
+                  value={selectedBinId}
+                  onChange={setSelectedBinId}
+                  style={{ width: '100%' }}
+                  loading={binsLoading}
+                  showSearch
+                  filterOption={(input, option: any) =>
+                    option?.children?.toLowerCase().includes(input.toLowerCase())
+                  }
+                >
+                  {bins.map((bin: any) => (
+                    <Option key={bin.id} value={bin.id}>
+                      {bin.locationCode} - {bin.warehouse?.name || `Warehouse ${bin.warehouseId}`}
+                    </Option>
+                  ))}
+                </Select>
+              </div>
               <div>
                 <label className="block mb-1 text-sm">Quantity</label>
                 <InputNumber
@@ -191,6 +282,26 @@ export default function PurchaseOrderForm() {
                 Add Item
               </Button>
             </div>
+
+            {selectedItemId && selectedBinId && (
+              <div className="p-3 bg-blue-50 rounded">
+                {loadingStock ? (
+                  <div className="flex items-center gap-2">
+                    <Spin size="small" />
+                    <span>Loading stock information...</span>
+                  </div>
+                ) : (
+                  <div>
+                    <div className="text-sm">
+                      <strong>Current Stock:</strong> {currentStock !== null ? currentStock : '-'}
+                    </div>
+                    <div className="text-sm mt-1">
+                      <strong>Projected Stock After Confirmation:</strong> {currentStock !== null ? currentStock + quantity : '-'}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             <Table
               dataSource={items}

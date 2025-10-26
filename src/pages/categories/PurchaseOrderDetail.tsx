@@ -1,11 +1,8 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { Card, Button, notification, Descriptions, Table, Space, Tag, Modal, Form, Select, Spin } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Card, Button, notification, Descriptions, Table, Space, Tag, Modal, Spin } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
 import { CheckCircleOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import client from '../../api/client';
-import { useEntityList } from '../../api/hooks';
-
-const { Option } = Select;
 
 export default function PurchaseOrderDetail() {
   const { id } = useParams();
@@ -13,10 +10,7 @@ export default function PurchaseOrderDetail() {
   const [purchaseOrder, setPurchaseOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [confirmModalVisible, setConfirmModalVisible] = useState(false);
-  const [confirmForm] = Form.useForm();
-
-  const { data: binsData, isLoading: binsLoading } = useEntityList<any>('/bins', { limit: 200 });
-  const bins = useMemo(() => binsData?.data || [], [binsData]);
+  const [confirming, setConfirming] = useState(false);
 
   useEffect(() => {
     fetchPurchaseOrder();
@@ -39,11 +33,10 @@ export default function PurchaseOrderDetail() {
     }
   };
 
-  const handleConfirm = async (values: any) => {
+  const handleConfirm = async () => {
     try {
-      await client.post(`/purchase-orders/${id}/confirm`, {
-        binId: values.binId
-      });
+      setConfirming(true);
+      await client.post(`/purchase-orders/${id}/confirm`);
       notification.success({ message: 'Purchase order confirmed successfully' });
       setConfirmModalVisible(false);
       fetchPurchaseOrder();
@@ -52,6 +45,8 @@ export default function PurchaseOrderDetail() {
         message: 'Failed to confirm purchase order', 
         description: err?.response?.data?.message || err.message 
       });
+    } finally {
+      setConfirming(false);
     }
   };
 
@@ -65,6 +60,16 @@ export default function PurchaseOrderDetail() {
       title: 'Item Name',
       key: 'itemName',
       render: (_: any, record: any) => record.item?.name || '-'
+    },
+    {
+      title: 'Bin Location',
+      key: 'binLocation',
+      render: (_: any, record: any) => record.bin?.locationCode || '-'
+    },
+    {
+      title: 'Warehouse',
+      key: 'warehouse',
+      render: (_: any, record: any) => record.bin?.warehouse?.name || '-'
     },
     {
       title: 'Quantity Ordered',
@@ -171,44 +176,14 @@ export default function PurchaseOrderDetail() {
         title="Confirm Purchase Order"
         open={confirmModalVisible}
         onCancel={() => setConfirmModalVisible(false)}
-        footer={null}
+        onOk={handleConfirm}
+        confirmLoading={confirming}
+        okText="Confirm"
       >
-        <Form form={confirmForm} layout="vertical" onFinish={handleConfirm}>
-          <p className="mb-4">
-            Confirming this purchase order will update its status and create inventory stock records 
-            for all items in the selected bin location.
-          </p>
-          
-          <Form.Item
-            name="binId"
-            label="Select Bin Location"
-            rules={[{ required: true, message: 'Please select a bin location' }]}
-          >
-            <Select 
-              placeholder="Select bin location" 
-              loading={binsLoading}
-              showSearch
-              filterOption={(input, option: any) =>
-                option?.children?.toLowerCase().includes(input.toLowerCase())
-              }
-            >
-              {bins.map((b: any) => (
-                <Option key={b.id} value={b.id}>
-                  {b.locationCode} - {b.warehouse?.name || `Warehouse ${b.warehouseId}`}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
-
-          <Form.Item>
-            <div className="flex gap-2 justify-end">
-              <Button onClick={() => setConfirmModalVisible(false)}>Cancel</Button>
-              <Button type="primary" htmlType="submit">
-                Confirm
-              </Button>
-            </div>
-          </Form.Item>
-        </Form>
+        <p>
+          Are you sure you want to confirm this purchase order? This will update its status and create 
+          inventory stock records for all items in their designated bin locations.
+        </p>
       </Modal>
     </div>
   );
