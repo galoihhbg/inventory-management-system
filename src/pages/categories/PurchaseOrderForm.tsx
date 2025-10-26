@@ -38,16 +38,20 @@ export default function PurchaseOrderForm() {
   const { data: binsData, isLoading: binsLoading } = useEntityList<any>('/bins', { limit: 200 });
   const bins = useMemo(() => binsData?.data || [], [binsData]);
 
+  // Memoize the selected bin to avoid repeated lookups
+  const selectedBin = useMemo(() => {
+    return bins.find((b: any) => b.id === selectedBinId);
+  }, [bins, selectedBinId]);
+
   // Fetch current stock when item and bin are selected
   useEffect(() => {
     const fetchCurrentStock = async () => {
-      if (!selectedItemId || !selectedBinId) {
+      if (!selectedItemId || !selectedBinId || !selectedBin) {
         setCurrentStock(null);
         return;
       }
 
-      const selectedBin = bins.find((b: any) => b.id === selectedBinId);
-      if (!selectedBin || !selectedBin.warehouseId) {
+      if (!selectedBin.warehouseId) {
         setCurrentStock(null);
         return;
       }
@@ -77,7 +81,7 @@ export default function PurchaseOrderForm() {
     };
 
     fetchCurrentStock();
-  }, [selectedItemId, selectedBinId, bins]);
+  }, [selectedItemId, selectedBinId, selectedBin]);
 
   const handleAddItem = () => {
     if (!selectedItemId || !selectedBinId || quantity <= 0 || unitPrice < 0) {
@@ -86,7 +90,6 @@ export default function PurchaseOrderForm() {
     }
 
     const item = availableItems.find((i: any) => i.id === selectedItemId);
-    const bin = bins.find((b: any) => b.id === selectedBinId);
     
     const newItem: OrderItem = {
       key: `${selectedItemId}-${selectedBinId}-${Date.now()}`,
@@ -95,8 +98,8 @@ export default function PurchaseOrderForm() {
       quantityOrdered: quantity,
       unitPrice: unitPrice,
       binId: selectedBinId,
-      binLocationCode: bin?.locationCode || `Bin ${selectedBinId}`,
-      warehouseName: bin?.warehouse?.name || `Warehouse ${bin?.warehouseId}`
+      binLocationCode: selectedBin?.locationCode || `Bin ${selectedBinId}`,
+      warehouseName: selectedBin?.warehouse?.name || `Warehouse ${selectedBin?.warehouseId}`
     };
 
     setItems([...items, newItem]);
