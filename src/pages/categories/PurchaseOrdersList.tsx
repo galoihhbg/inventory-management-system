@@ -55,7 +55,7 @@ export default function PurchaseOrdersList() {
   const { data, isLoading } = useEntityList<any>('/purchase-orders', params);
 
   const dataSource = useMemo(() => {
-    const rows = data?.data || data?.purchaseOrders || [];
+    const rows = data?.data || [];
     if (!q.trim()) return rows;
     return rows.filter((r: any) => JSON.stringify(r).toLowerCase().includes(q.toLowerCase()));
   }, [data, q]);

@@ -128,8 +128,8 @@ export default function PurchaseOrderForm() {
             placeholder="Select partner" 
             loading={partnersLoading}
             showSearch
-            filterOption={(input, option) =>
-              (option?.children as string)?.toLowerCase().includes(input.toLowerCase())
+            filterOption={(input, option: any) =>
+              option?.children?.toLowerCase().includes(input.toLowerCase())
             }
           >
             {partners.map((p: any) => (
@@ -152,8 +152,8 @@ export default function PurchaseOrderForm() {
                   style={{ width: '100%' }}
                   loading={itemsLoading}
                   showSearch
-                  filterOption={(input, option) =>
-                    (option?.children as string)?.toLowerCase().includes(input.toLowerCase())
+                  filterOption={(input, option: any) =>
+                    option?.children?.toLowerCase().includes(input.toLowerCase())
                   }
                 >
                   {availableItems.map((item: any) => (

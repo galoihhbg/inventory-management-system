@@ -188,8 +188,8 @@ export default function PurchaseOrderDetail() {
               placeholder="Select bin location" 
               loading={binsLoading}
               showSearch
-              filterOption={(input, option) =>
-                (option?.children as string)?.toLowerCase().includes(input.toLowerCase())
+              filterOption={(input, option: any) =>
+                option?.children?.toLowerCase().includes(input.toLowerCase())
               }
             >
               {bins.map((b: any) => (
