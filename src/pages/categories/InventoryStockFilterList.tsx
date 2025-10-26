@@ -61,7 +61,7 @@ export default function InventoryStockFilterList() {
   const { data: warehousesData } = useEntityList<any>('/warehouses', { limit: 100 });
 
   // Fetch inventory stock data with filters
-  const { data, isLoading, refetch } = useQuery<InventoryStockFilterResponse>({
+  const { data, isLoading } = useQuery<InventoryStockFilterResponse>({
     queryKey: ['/inventory-stock/filter', itemId, binId, warehouseId, status, cursor, limit],
     queryFn: async () => {
       const params: any = { limit };
@@ -76,7 +76,7 @@ export default function InventoryStockFilterList() {
     }
   });
 
-  const handleViewDetail = async (record: InventoryStockFilterItem) => {
+  const handleViewDetail = (record: InventoryStockFilterItem) => {
     setSelectedRecord(record);
     setDetailModalVisible(true);
   };
@@ -88,8 +88,7 @@ export default function InventoryStockFilterList() {
   };
 
   const handlePrevPage = () => {
-    // For cursor-based pagination, going back is tricky
-    // We reset to first page
+    // Reset to first page (cursor-based pagination limitation)
     setCursor('');
   };
 
@@ -174,6 +173,7 @@ export default function InventoryStockFilterList() {
 
       {/* Filters */}
       <Card className="mb-4">
+        <p className="text-sm text-gray-600 mb-4">Filters are applied automatically as you change them.</p>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
           <div>
             <label className="block mb-1 text-sm font-medium">Item</label>
@@ -247,7 +247,6 @@ export default function InventoryStockFilterList() {
 
         <div className="flex justify-end gap-2">
           <Button onClick={handleReset}>Reset Filters</Button>
-          <Button type="primary" onClick={() => refetch()}>Apply Filters</Button>
         </div>
       </Card>
 
@@ -272,7 +271,7 @@ export default function InventoryStockFilterList() {
             onClick={handlePrevPage} 
             disabled={!cursor}
           >
-            Previous
+            First Page
           </Button>
           <Button 
             type="primary"
