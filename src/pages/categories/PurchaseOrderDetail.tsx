@@ -29,23 +29,23 @@ export default function PurchaseOrderDetail() {
       const response = await client.get(`/purchase-orders/${id}`);
       const data = response.data?.purchaseOrder || response.data;
       setPurchaseOrder(data);
+      return true;
     } catch (err: any) {
       notification.error({ 
         message: 'Failed to fetch purchase order', 
         description: err?.response?.data?.message || err.message 
       });
       navigate('/purchase-orders');
+      return false;
     } finally {
       setLoading(false);
     }
   };
 
   const handleRefresh = async () => {
-    try {
-      await fetchPurchaseOrder();
+    const success = await fetchPurchaseOrder();
+    if (success) {
       notification.success({ message: 'Data refreshed' });
-    } catch (err) {
-      // Error is already handled in fetchPurchaseOrder
     }
   };
 
