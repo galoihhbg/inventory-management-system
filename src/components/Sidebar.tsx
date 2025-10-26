@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Menu } from 'antd';
 import { Link, useLocation } from 'react-router-dom';
-import { HomeOutlined, DatabaseOutlined, AppstoreOutlined, TeamOutlined, SettingOutlined, UnlockOutlined, ShoppingCartOutlined } from '@ant-design/icons';
+import { HomeOutlined, DatabaseOutlined, AppstoreOutlined, TeamOutlined, SettingOutlined, UnlockOutlined, ShoppingCartOutlined, StockOutlined } from '@ant-design/icons';
 import { useAuth } from '../context/AuthContext';
 import { DEFAULT_PERMISSIONS, DISPLAY_CONFIG_KEY } from '../config/permissions';
 
@@ -16,6 +16,7 @@ const ITEMS: MenuItem[] = [
   { key: 'dashboard', label: 'Dashboard', path: '/dashboard', icon: <HomeOutlined /> },
   { key: 'warehouses', label: 'Warehouses', path: '/warehouses', icon: <DatabaseOutlined /> },
   { key: 'items', label: 'Items', path: '/items', icon: <AppstoreOutlined /> },
+  { key: 'inventoryStock', label: 'Inventory Stock', path: '/inventory-stock', icon: <StockOutlined /> },
   { key: 'purchaseOrders', label: 'Purchase Orders', path: '/purchase-orders', icon: <ShoppingCartOutlined /> },
   { key: 'users', label: 'Users', path: '/users', icon: <TeamOutlined /> },
   { key: 'roles', label: 'Roles', path: '/roles', icon: <UnlockOutlined /> },
