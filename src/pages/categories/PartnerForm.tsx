@@ -13,7 +13,7 @@ export default function PartnerForm() {
     if (id) {
       (async () => {
         try {
-          const res = await getOne(id);
+          const res = await getOne.mutateAsync(id);
           const d = res.data || res;
           form.setFieldsValue(d);
         } catch (err: any) {

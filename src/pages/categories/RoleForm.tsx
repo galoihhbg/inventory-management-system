@@ -13,7 +13,7 @@ export default function RoleForm() {
     if (id) {
       (async () => {
         try {
-          const res = await getOne(id);
+          const res = await getOne.mutateAsync(id);
           const payload = res?.data || res;
           form.setFieldsValue({ roleName: payload.roleName || payload.name });
         } catch (err: any) {

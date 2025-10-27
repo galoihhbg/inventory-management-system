@@ -15,7 +15,7 @@ type Props = {
 export default function GenericList({ endpoint, title, columns, createPath, editPath }: Props) {
   const { data, isLoading, setFilter } = useFilteredList<any>({
     endpoint,
-    initialFilters: { limit: 50 }
+    initialFilters: { limit: 20 }
   });
   const { remove } = useEntityCRUD(endpoint);
   const navigate = useNavigate();

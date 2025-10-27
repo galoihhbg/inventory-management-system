@@ -7,7 +7,7 @@ import { useFilteredList, useEntityCRUD } from '../../api/hooks';
 export default function RolesList() {
   const { data, isLoading, setFilter } = useFilteredList<any>({
     endpoint: '/roles',
-    initialFilters: { limit: 50 }
+    initialFilters: { limit: 1, page: 2 }
   });
   const { remove } = useEntityCRUD('/roles');
   const navigate = useNavigate();
