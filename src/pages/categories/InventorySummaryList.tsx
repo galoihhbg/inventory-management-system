@@ -1,7 +1,7 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { Table, Input, Button, Space, Modal, Descriptions, notification } from 'antd';
 import { EyeOutlined, SyncOutlined } from '@ant-design/icons';
-import { useQuery } from '@tanstack/react-query';
+import { useFilteredList, BaseFilter } from '../../api/hooks';
 import client from '../../api/client';
 
 type InventorySummaryItem = {
@@ -15,36 +15,16 @@ type InventorySummaryItem = {
   totalStock: number;
 };
 
-type InventorySummaryResponse = {
-  data: InventorySummaryItem[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-    nextCursor: string;
-  };
-};
-
 export default function InventorySummaryList() {
-  const [searchText, setSearchText] = useState('');
-  const [page, setPage] = useState(1);
-  const [limit] = useState(20);
   const [selectedRecord, setSelectedRecord] = useState<InventorySummaryItem | null>(null);
   const [detailModalVisible, setDetailModalVisible] = useState(false);
 
-  // Fetch inventory summary data
-  const { data, isLoading, refetch } = useQuery<InventorySummaryResponse>({
-    queryKey: ['/inventory-summary', page, limit, searchText],
-    queryFn: async () => {
-      const params: any = { page, limit };
-      if (searchText.trim()) {
-        params.search = searchText;
-      }
-      const res = await client.get('/inventory-summary', { params });
-      return res.data;
-    }
-  });
+  // Fetch inventory summary data with pagination
+  const { data, isLoading, filters, setFilter, goToPage, pagination, refetch } = 
+    useFilteredList<InventorySummaryItem>({
+      endpoint: '/inventory-summary',
+      initialFilters: { limit: 20, page: 1 }
+    });
 
   // Sync inventory summary
   const handleSync = async () => {
@@ -77,10 +57,6 @@ export default function InventorySummaryList() {
       });
     }
   };
-
-  const dataSource = useMemo(() => {
-    return data?.data || [];
-  }, [data]);
 
   const columns = [
     {
@@ -157,7 +133,8 @@ export default function InventorySummaryList() {
         <Space>
           <Input.Search
             placeholder="Search by item code or name"
-            onChange={(e) => setSearchText(e.target.value)}
+            onSearch={(v) => setFilter('search', v)}
+            onChange={(e) => !e.target.value && setFilter('search', '')}
             allowClear
             style={{ width: 300 }}
           />
@@ -174,16 +151,16 @@ export default function InventorySummaryList() {
       <Table
         rowKey="id"
         loading={isLoading}
-        dataSource={dataSource}
+        dataSource={data}
         columns={columns}
         pagination={{
-          current: page,
-          pageSize: limit,
-          total: data?.pagination?.total || 0,
+          current: filters.page as number || 1,
+          pageSize: filters.limit as number || 20,
+          total: pagination?.total || 0,
           showSizeChanger: false,
           showQuickJumper: true,
           showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
-          onChange: (newPage) => setPage(newPage)
+          onChange: (newPage) => goToPage(newPage)
         }}
       />
 

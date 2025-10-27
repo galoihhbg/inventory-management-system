@@ -1,10 +1,14 @@
-import React, { useMemo, useState } from 'react';
-import { Button, Table, Space, notification, Input, Select, Tag } from 'antd';
+import React from 'react';
+import { Button, Table, Space, Input, Select, Tag } from 'antd';
 import { PlusOutlined, EyeOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
-import { useEntityList } from '../../api/hooks';
+import { useFilteredList, BaseFilter } from '../../api/hooks';
 
 const { Option } = Select;
+
+interface PurchaseOrderFilter extends BaseFilter {
+  status?: string;
+}
 
 const columns = [
   { 
@@ -42,23 +46,12 @@ const columns = [
 ];
 
 export default function PurchaseOrdersList() {
-  const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
-  const [q, setQ] = useState('');
   const navigate = useNavigate();
 
-  const params = useMemo(() => {
-    const p: any = { limit: 50 };
-    if (statusFilter) p.status = statusFilter;
-    return p;
-  }, [statusFilter]);
-
-  const { data, isLoading } = useEntityList<any>('/purchase-orders', params);
-
-  const dataSource = useMemo(() => {
-    const rows = data?.data || [];
-    if (!q.trim()) return rows;
-    return rows.filter((r: any) => JSON.stringify(r).toLowerCase().includes(q.toLowerCase()));
-  }, [data, q]);
+  const { data, isLoading, filters, setFilter } = useFilteredList<any, PurchaseOrderFilter>({
+    endpoint: '/purchase-orders',
+    initialFilters: { limit: 50 }
+  });
 
   const cols = [
     ...columns,
@@ -84,13 +77,19 @@ export default function PurchaseOrdersList() {
             placeholder="Filter by status" 
             style={{ width: 150 }} 
             allowClear 
-            onChange={(v) => setStatusFilter(v)}
-            value={statusFilter}
+            onChange={(v) => setFilter('status', v)}
+            value={filters.status}
           >
             <Option value="draft">Draft</Option>
             <Option value="confirmed">Confirmed</Option>
           </Select>
-          <Input.Search placeholder="Search" onSearch={(v) => setQ(v)} style={{ width: 240 }} />
+          <Input.Search 
+            placeholder="Search" 
+            onSearch={(v) => setFilter('search', v)} 
+            onChange={(e) => !e.target.value && setFilter('search', '')}
+            allowClear
+            style={{ width: 240 }} 
+          />
           <Link to="/purchase-orders/new">
             <Button type="primary" icon={<PlusOutlined />}>
               New
@@ -102,7 +101,7 @@ export default function PurchaseOrdersList() {
       <Table 
         rowKey="id" 
         loading={isLoading} 
-        dataSource={dataSource} 
+        dataSource={data} 
         columns={cols} 
         pagination={{ pageSize: 10 }} 
       />

@@ -1,10 +1,8 @@
-import React, { useMemo, useState } from 'react';
+import React from 'react';
 import { Table, Input, Select, Button } from 'antd';
-import { useEntityList } from '../../api/hooks';
-import { useQuery } from '@tanstack/react-query';
+import { useFilteredList, BaseFilter } from '../../api/hooks';
 import { useNavigate } from 'react-router-dom';
 import { FilterOutlined } from '@ant-design/icons';
-import client from '../../api/client';
 
 type InventoryStockItem = {
   itemId: number;
@@ -21,46 +19,24 @@ type InventoryStockItem = {
   }[];
 };
 
-type InventoryStockResponse = {
-  data: InventoryStockItem[];
-  pagination: {
-    limit: number;
-    nextCursor: string;
-    page: number;
-    total: number;
-  };
-};
+interface InventoryStockFilter extends BaseFilter {
+  warehouseId?: number;
+}
 
 export default function InventoryStockList() {
   const navigate = useNavigate();
-  const [warehouseId, setWarehouseId] = useState<number | undefined>(undefined);
-  const [searchText, setSearchText] = useState('');
-
+  
   // Fetch warehouses for the filter dropdown
-  const { data: warehousesData } = useEntityList<any>('/warehouses', { limit: 100 });
-
-  // Fetch inventory stock data
-  const { data, isLoading } = useQuery<InventoryStockResponse>({
-    queryKey: ['/inventory-stock/items/aggregation', warehouseId],
-    queryFn: async () => {
-      const params: any = { limit: 50 };
-      if (warehouseId !== undefined) {
-        params.warehouseId = warehouseId;
-      }
-      const res = await client.get('/inventory-stock/items/aggregation', { params });
-      return res.data;
-    }
+  const { data: warehousesData } = useFilteredList<any>({
+    endpoint: '/warehouses',
+    initialFilters: { limit: 100 }
   });
 
-  const dataSource = useMemo(() => {
-    const rows = data?.data || [];
-    if (searchText.trim()) {
-      return rows.filter((r: InventoryStockItem) =>
-        (r.itemCode + r.itemName).toLowerCase().includes(searchText.toLowerCase())
-      );
-    }
-    return rows;
-  }, [data, searchText]);
+  // Fetch inventory stock data
+  const { data, isLoading, filters, setFilter, pagination } = useFilteredList<InventoryStockItem, InventoryStockFilter>({
+    endpoint: '/inventory-stock/items/aggregation',
+    initialFilters: { limit: 50 }
+  });
 
   const columns = [
     { title: 'Item ID', dataIndex: 'itemId', key: 'itemId', width: 100 },
@@ -112,10 +88,11 @@ export default function InventoryStockList() {
             placeholder="Select Warehouse"
             style={{ width: 200 }}
             allowClear
-            onChange={(value) => setWarehouseId(value)}
+            onChange={(value) => setFilter('warehouseId', value)}
+            value={filters.warehouseId}
             options={[
               { label: 'All Warehouses', value: undefined },
-              ...(warehousesData?.data || []).map((wh: any) => ({
+              ...(warehousesData || []).map((wh: any) => ({
                 label: wh.name,
                 value: wh.id
               }))
@@ -123,7 +100,8 @@ export default function InventoryStockList() {
           />
           <Input.Search
             placeholder="Search by code or name"
-            onChange={(e) => setSearchText(e.target.value)}
+            onSearch={(v) => setFilter('search', v)}
+            onChange={(e) => !e.target.value && setFilter('search', '')}
             allowClear
             style={{ width: 240 }}
           />
@@ -140,9 +118,9 @@ export default function InventoryStockList() {
       <Table
         rowKey="itemId"
         loading={isLoading}
-        dataSource={dataSource}
+        dataSource={data}
         columns={columns}
-        pagination={{ pageSize: 10, total: data?.pagination?.total }}
+        pagination={{ pageSize: 10, total: pagination?.total }}
         onRow={(record) => ({
           onClick: () => handleRowClick(record),
           style: { cursor: 'pointer' }

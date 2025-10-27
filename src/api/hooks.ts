@@ -17,6 +17,9 @@ export function useEntityList<T = any>(endpoint: string, params?: Record<string,
   });
 }
 
+// Export the new filtered list hook
+export { useFilteredList, type BaseFilter, type ListResponse as FilteredListResponse } from './useFilteredList';
+
 export function useEntityCRUD(endpoint: string) {
   const qc = useQueryClient();
 

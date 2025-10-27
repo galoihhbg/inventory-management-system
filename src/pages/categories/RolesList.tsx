@@ -1,12 +1,14 @@
-import React, { useMemo, useState } from 'react';
+import React from 'react';
 import { Button, Table, Space, Popconfirm, notification, Input } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
-import { useEntityList, useEntityCRUD } from '../../api/hooks';
+import { useFilteredList, useEntityCRUD } from '../../api/hooks';
 
 export default function RolesList() {
-  const [q, setQ] = useState('');
-  const { data, isLoading } = useEntityList<any>('/roles', { limit: 50 });
+  const { data, isLoading, setFilter } = useFilteredList<any>({
+    endpoint: '/roles',
+    initialFilters: { limit: 50 }
+  });
   const { remove } = useEntityCRUD('/roles');
   const navigate = useNavigate();
 
@@ -18,12 +20,6 @@ export default function RolesList() {
       notification.error({ message: 'Delete failed', description: err?.response?.data?.message || err.message });
     }
   };
-
-  const dataSource = useMemo(() => {
-    const rows = data?.data || [];
-    if (!q.trim()) return rows;
-    return rows.filter((r: any) => (r.roleName || '').toLowerCase().includes(q.toLowerCase()));
-  }, [data, q]);
 
   const columns = [
     { title: 'ID', dataIndex: 'id', key: 'id', width: 80 },
@@ -43,7 +39,13 @@ export default function RolesList() {
       <div className="flex items-center justify-between mb-4">
         <h3>Roles</h3>
         <Space>
-          <Input.Search placeholder="Search" onSearch={(v) => setQ(v)} style={{ width: 240 }} />
+          <Input.Search 
+            placeholder="Search" 
+            onSearch={(v) => setFilter('search', v)} 
+            onChange={(e) => !e.target.value && setFilter('search', '')}
+            allowClear
+            style={{ width: 240 }} 
+          />
           <Link to="/roles/new">
             <Button type="primary" icon={<PlusOutlined />}>
               New Role
@@ -52,7 +54,7 @@ export default function RolesList() {
         </Space>
       </div>
 
-      <Table rowKey="id" loading={isLoading} dataSource={dataSource} columns={columns} pagination={{ pageSize: 10 }} />
+      <Table rowKey="id" loading={isLoading} dataSource={data} columns={columns} pagination={{ pageSize: 10 }} />
     </div>
   );
 }
