@@ -3,10 +3,13 @@
 ## Overview
 This document summarizes the implementation of a backend-based filtering system for the inventory management frontend.
 
-## Problem Statement (Vietnamese)
+## Problem Statement
+
+**Original Request (Vietnamese):**
 > tạo một bộ hook hay gì đó, chuyên xử lý filter. bên cạnh các filter cơ bản trên còn có các trường riêng mà tùy api có thể thêm vào nữa. Các endpoint get list đều đang có bộ filter như này. Hãy thêm và sửa lại filter cho các module nhé (gọi đến backend lấy data chứ không phải filter ở frontend như hiện tại)
 
-**Translation:** Create a hook to handle filters. Besides the basic filters, there should be custom fields that can be added per API. All GET list endpoints currently have filters like this. Please add and update filters for all modules (call backend to get data instead of filtering on frontend as currently implemented).
+**English Translation:**
+Create a hook to handle filters. Besides the basic filters, there should be custom fields that can be added per API. All GET list endpoints currently have filters like this. Please add and update filters for all modules (call backend to get data instead of filtering on frontend as currently implemented).
 
 ## Solution
 
@@ -181,21 +184,24 @@ Created comprehensive documentation:
 
 ### Files Modified
 
-| File | Lines Changed | Description |
-|------|---------------|-------------|
-| `src/api/useFilteredList.ts` | +193 | New filtering hook |
-| `src/api/hooks.ts` | +3 | Export new hook |
-| `src/pages/categories/WarehousesList.tsx` | ~28 | Backend filtering |
-| `src/pages/categories/UsersList.tsx` | ~26 | Backend filtering |
-| `src/pages/categories/RolesList.tsx` | ~26 | Backend filtering |
-| `src/pages/categories/GenericListFactory.tsx` | ~25 | Backend filtering |
-| `src/pages/categories/PurchaseOrdersList.tsx` | ~43 | Backend filtering + custom status filter |
-| `src/pages/categories/InventoryStockList.tsx` | ~62 | Backend filtering + custom warehouse filter |
-| `src/pages/categories/InventoryStockFilterList.tsx` | ~140 | Backend filtering + URL sync + multiple custom filters |
-| `src/pages/categories/InventorySummaryList.tsx` | ~53 | Backend filtering + page pagination |
-| `FILTER_USAGE_GUIDE.md` | +384 | Comprehensive documentation |
+| File | Changes | Description |
+|------|---------|-------------|
+| `src/api/useFilteredList.ts` | +193 new | New filtering hook |
+| `src/api/hooks.ts` | +3 modified | Export new hook |
+| `src/pages/categories/WarehousesList.tsx` | Modified | Backend filtering |
+| `src/pages/categories/UsersList.tsx` | Modified | Backend filtering |
+| `src/pages/categories/RolesList.tsx` | Modified | Backend filtering |
+| `src/pages/categories/GenericListFactory.tsx` | Modified | Backend filtering |
+| `src/pages/categories/PurchaseOrdersList.tsx` | Modified | Backend filtering + custom status filter |
+| `src/pages/categories/InventoryStockList.tsx` | Modified | Backend filtering + custom warehouse filter |
+| `src/pages/categories/InventoryStockFilterList.tsx` | Modified | Backend filtering + URL sync + multiple custom filters |
+| `src/pages/categories/InventorySummaryList.tsx` | Modified | Backend filtering + page pagination |
+| `FILTER_USAGE_GUIDE.md` | +384 new | Comprehensive documentation |
 
-**Total:** 11 files changed, 748 insertions(+), 235 deletions(-)
+**Summary:** 11 files changed
+- 577 lines of new code added (hook + documentation)
+- 235 lines of old filtering code removed (useMemo logic, useState for filters)
+- Net change: +748 insertions, -235 deletions
 
 ## Testing Results
 
