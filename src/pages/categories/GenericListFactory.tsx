@@ -2,8 +2,7 @@ import React from 'react';
 import { Button, Table, Space, Popconfirm, notification, Input } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
-import { useEntityList, useEntityCRUD } from '../../api/hooks';
-import { useMemo, useState } from 'react';
+import { useFilteredList, useEntityCRUD } from '../../api/hooks';
 
 type Props = {
   endpoint: string;
@@ -14,8 +13,10 @@ type Props = {
 };
 
 export default function GenericList({ endpoint, title, columns, createPath, editPath }: Props) {
-  const [q, setQ] = useState('');
-  const { data, isLoading } = useEntityList<any>(endpoint, { limit: 50 });
+  const { data, isLoading, setFilter } = useFilteredList<any>({
+    endpoint,
+    initialFilters: { limit: 50 }
+  });
   const { remove } = useEntityCRUD(endpoint);
   const navigate = useNavigate();
 
@@ -27,12 +28,6 @@ export default function GenericList({ endpoint, title, columns, createPath, edit
       notification.error({ message: 'Delete failed', description: err?.response?.data?.message || err.message });
     }
   };
-
-  const dataSource = useMemo(() => {
-    const rows = data?.data || [];
-    if (!q.trim()) return rows;
-    return rows.filter((r: any) => JSON.stringify(r).toLowerCase().includes(q.toLowerCase()));
-  }, [data, q]);
 
   const cols = [
     ...columns,
@@ -55,7 +50,13 @@ export default function GenericList({ endpoint, title, columns, createPath, edit
       <div className="flex items-center justify-between mb-4">
         <h3>{title}</h3>
         <Space>
-          <Input.Search placeholder="Search" onSearch={(v) => setQ(v)} style={{ width: 240 }} />
+          <Input.Search 
+            placeholder="Search" 
+            onSearch={(v) => setFilter('search', v)} 
+            onChange={(e) => !e.target.value && setFilter('search', '')}
+            allowClear
+            style={{ width: 240 }} 
+          />
           {createPath && (
             <Link to={createPath}>
               <Button type="primary" icon={<PlusOutlined />}>
@@ -66,7 +67,7 @@ export default function GenericList({ endpoint, title, columns, createPath, edit
         </Space>
       </div>
 
-      <Table rowKey="id" loading={isLoading} dataSource={dataSource} columns={cols} pagination={{ pageSize: 10 }} />
+      <Table rowKey="id" loading={isLoading} dataSource={data} columns={cols} pagination={{ pageSize: 10 }} />
     </div>
   );
 }

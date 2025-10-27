@@ -1,10 +1,8 @@
-import React, { useMemo, useState, useEffect } from 'react';
-import { Table, Input, Select, Button, Space, Card, Descriptions, Modal, Spin } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Table, Input, Select, Button, Space, Card, Descriptions, Modal } from 'antd';
 import { EyeOutlined } from '@ant-design/icons';
-import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
-import client from '../../api/client';
-import { useEntityList } from '../../api/hooks';
+import { useFilteredList, BaseFilter } from '../../api/hooks';
 
 type InventoryStockFilterItem = {
   id: number;
@@ -23,83 +21,59 @@ type InventoryStockFilterItem = {
   status?: string;
 };
 
-type InventoryStockFilterResponse = {
-  data: InventoryStockFilterItem[];
-  pagination: {
-    limit: number;
-    nextCursor: string;
-    page: number;
-    total: number;
-  };
-};
+interface InventoryStockCustomFilter extends BaseFilter {
+  itemId?: number;
+  binId?: number;
+  warehouseId?: number;
+  status?: string;
+}
 
 export default function InventoryStockFilterList() {
   const [searchParams] = useSearchParams();
-  const [itemId, setItemId] = useState<number | undefined>(undefined);
-  const [binId, setBinId] = useState<number | undefined>(undefined);
-  const [warehouseId, setWarehouseId] = useState<number | undefined>(undefined);
-  const [status, setStatus] = useState<string | undefined>(undefined);
-  const [cursor, setCursor] = useState<string>('');
-  const [limit, setLimit] = useState<number>(10);
   const [selectedRecord, setSelectedRecord] = useState<InventoryStockFilterItem | null>(null);
   const [detailModalVisible, setDetailModalVisible] = useState(false);
 
-  // Initialize filters from URL params
-  useEffect(() => {
+  // Fetch dropdown options
+  const { data: itemsData } = useFilteredList<any>({
+    endpoint: '/items',
+    initialFilters: { limit: 200 }
+  });
+  const { data: binsData } = useFilteredList<any>({
+    endpoint: '/bins',
+    initialFilters: { limit: 200 }
+  });
+  const { data: warehousesData } = useFilteredList<any>({
+    endpoint: '/warehouses',
+    initialFilters: { limit: 100 }
+  });
+
+  // Initialize filter values from URL
+  const getInitialFilters = (): InventoryStockCustomFilter => {
     const itemIdParam = searchParams.get('itemId');
     const binIdParam = searchParams.get('binId');
     const warehouseIdParam = searchParams.get('warehouseId');
     const statusParam = searchParams.get('status');
     
-    if (itemIdParam) setItemId(parseInt(itemIdParam));
-    if (binIdParam) setBinId(parseInt(binIdParam));
-    if (warehouseIdParam) setWarehouseId(parseInt(warehouseIdParam));
-    if (statusParam) setStatus(statusParam);
-  }, [searchParams]);
-
-  // Fetch dropdown options
-  const { data: itemsData } = useEntityList<any>('/items', { limit: 200 });
-  const { data: binsData } = useEntityList<any>('/bins', { limit: 200 });
-  const { data: warehousesData } = useEntityList<any>('/warehouses', { limit: 100 });
+    return {
+      limit: 10,
+      ...(itemIdParam && { itemId: parseInt(itemIdParam) }),
+      ...(binIdParam && { binId: parseInt(binIdParam) }),
+      ...(warehouseIdParam && { warehouseId: parseInt(warehouseIdParam) }),
+      ...(statusParam && { status: statusParam })
+    };
+  };
 
   // Fetch inventory stock data with filters
-  const { data, isLoading } = useQuery<InventoryStockFilterResponse>({
-    queryKey: ['/inventory-stock/filter', itemId, binId, warehouseId, status, cursor, limit],
-    queryFn: async () => {
-      const params: any = { limit };
-      if (cursor) params.cursor = cursor;
-      if (itemId !== undefined) params.itemId = itemId;
-      if (binId !== undefined) params.binId = binId;
-      if (warehouseId !== undefined) params.warehouseId = warehouseId;
-      if (status !== undefined && status !== '') params.status = status;
-      
-      const res = await client.get('/inventory-stock/filter', { params });
-      return res.data;
-    }
-  });
+  const { data, isLoading, filters, setFilter, setFilters, resetFilters, pagination } = 
+    useFilteredList<InventoryStockFilterItem, InventoryStockCustomFilter>({
+      endpoint: '/inventory-stock/filter',
+      initialFilters: getInitialFilters(),
+      syncWithUrl: true
+    });
 
   const handleViewDetail = (record: InventoryStockFilterItem) => {
     setSelectedRecord(record);
     setDetailModalVisible(true);
-  };
-
-  const handleNextPage = () => {
-    if (data?.pagination?.nextCursor) {
-      setCursor(data.pagination.nextCursor);
-    }
-  };
-
-  const handlePrevPage = () => {
-    // Reset to first page (cursor-based pagination limitation)
-    setCursor('');
-  };
-
-  const handleReset = () => {
-    setItemId(undefined);
-    setBinId(undefined);
-    setWarehouseId(undefined);
-    setStatus(undefined);
-    setCursor('');
   };
 
   const columns = [
@@ -191,13 +165,13 @@ export default function InventoryStockFilterList() {
               style={{ width: '100%' }}
               allowClear
               showSearch
-              value={itemId}
-              onChange={(value) => setItemId(value)}
+              value={filters.itemId}
+              onChange={(value) => setFilter('itemId', value)}
               filterOption={(input, option: any) =>
                 option?.children?.toLowerCase().includes(input.toLowerCase())
               }
             >
-              {(itemsData?.data || []).map((item: any) => (
+              {(itemsData || []).map((item: any) => (
                 <Select.Option key={item.id} value={item.id}>
                   {item.code} - {item.name}
                 </Select.Option>
@@ -212,13 +186,13 @@ export default function InventoryStockFilterList() {
               style={{ width: '100%' }}
               allowClear
               showSearch
-              value={binId}
-              onChange={(value) => setBinId(value)}
+              value={filters.binId}
+              onChange={(value) => setFilter('binId', value)}
               filterOption={(input, option: any) =>
                 option?.children?.toLowerCase().includes(input.toLowerCase())
               }
             >
-              {(binsData?.data || []).map((bin: any) => (
+              {(binsData || []).map((bin: any) => (
                 <Select.Option key={bin.id} value={bin.id}>
                   {bin.locationCode}
                 </Select.Option>
@@ -232,10 +206,10 @@ export default function InventoryStockFilterList() {
               placeholder="Select Warehouse"
               style={{ width: '100%' }}
               allowClear
-              value={warehouseId}
-              onChange={(value) => setWarehouseId(value)}
+              value={filters.warehouseId}
+              onChange={(value) => setFilter('warehouseId', value)}
             >
-              {(warehousesData?.data || []).map((wh: any) => (
+              {(warehousesData || []).map((wh: any) => (
                 <Select.Option key={wh.id} value={wh.id}>
                   {wh.name}
                 </Select.Option>
@@ -247,15 +221,15 @@ export default function InventoryStockFilterList() {
             <label className="block mb-1 text-sm font-medium">Status</label>
             <Input
               placeholder="Status"
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
+              value={filters.status}
+              onChange={(e) => setFilter('status', e.target.value)}
               allowClear
             />
           </div>
         </div>
 
         <div className="flex justify-end gap-2">
-          <Button onClick={handleReset}>Reset Filters</Button>
+          <Button onClick={resetFilters}>Reset Filters</Button>
         </div>
       </Card>
 
@@ -263,7 +237,7 @@ export default function InventoryStockFilterList() {
       <Table
         rowKey="id"
         loading={isLoading}
-        dataSource={data?.data || []}
+        dataSource={data}
         columns={columns}
         pagination={false}
       />
@@ -272,20 +246,20 @@ export default function InventoryStockFilterList() {
       <div className="mt-4 flex items-center justify-between">
         <div>
           <span className="text-sm text-gray-600">
-            Page {data?.pagination?.page || 1} | Total: {data?.pagination?.total || 0} records
+            Page {pagination?.page || 1} | Total: {pagination?.total || 0} records
           </span>
         </div>
         <Space>
           <Button 
-            onClick={handlePrevPage} 
-            disabled={!cursor}
+            onClick={() => setFilter('cursor', '')} 
+            disabled={!filters.cursor}
           >
             First Page
           </Button>
           <Button 
             type="primary"
-            onClick={handleNextPage} 
-            disabled={!data?.pagination?.nextCursor}
+            onClick={() => pagination?.nextCursor && setFilter('cursor', pagination.nextCursor)} 
+            disabled={!pagination?.nextCursor}
           >
             Next
           </Button>
