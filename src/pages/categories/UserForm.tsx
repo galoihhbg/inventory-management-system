@@ -21,9 +21,9 @@ export default function UserForm() {
           const res = await getOne.mutateAsync(id);
           const payload = res?.data || res;
           form.setFieldsValue({
-            username: payload.username,
-            email: payload.email,
-            roleId: payload.roleId ?? (payload.role ? payload.role.id : undefined)
+            username: (payload as any).username,
+            email: (payload as any).email,
+            roleId: (payload as any).roleId ?? ((payload as any).role ? (payload as any).role.id : undefined)
           });
         } catch (err: any) {
           notification.error({ message: 'Could not fetch user', description: err?.message });

@@ -1,17 +1,20 @@
 import React from 'react';
 import { Result, Button } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export default function Unauthorized() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  
   return (
     <Result
       status="403"
       title="403"
-      subTitle="Bạn không có quyền truy cập trang này."
+      subTitle={t('auth.unauthorized')}
       extra={
         <Button type="primary" onClick={() => navigate(-1)}>
-          Quay lại
+          {t('common.back')}
         </Button>
       }
     />

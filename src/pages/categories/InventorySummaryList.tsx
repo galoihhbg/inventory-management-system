@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Table, Input, Button, Space, Modal, Descriptions, notification } from 'antd';
-import { EyeOutlined, SyncOutlined } from '@ant-design/icons';
-import { useFilteredList, BaseFilter } from '../../api/hooks';
+import { EyeOutlined, SyncOutlined, ReloadOutlined } from '@ant-design/icons';
+import { useFilteredList } from '../../api/hooks';
+import { BaseFilter } from '../../types';
 import client from '../../api/client';
+import Pagination from '../../components/Pagination';
 
 type InventorySummaryItem = {
   id: number;
@@ -20,8 +22,15 @@ export default function InventorySummaryList() {
   const [detailModalVisible, setDetailModalVisible] = useState(false);
 
   // Fetch inventory summary data with pagination
-  const { data, isLoading, filters, setFilter, goToPage, pagination, refetch } = 
-    useFilteredList<InventorySummaryItem>({
+  const { 
+    data, 
+    isLoading, 
+    isFetching,
+    filters, 
+    setFilter, 
+    pagination, 
+    refetch 
+  } = useFilteredList<InventorySummaryItem>({
       endpoint: '/inventory-summary',
       initialFilters: { limit: 20, page: 1 }
     });
@@ -138,6 +147,14 @@ export default function InventorySummaryList() {
             allowClear
             style={{ width: 300 }}
           />
+          <Button 
+            icon={<ReloadOutlined />} 
+            onClick={() => refetch()}
+            loading={isFetching}
+            title="Refresh"
+          >
+            Refresh
+          </Button>
           <Button
             type="primary"
             icon={<SyncOutlined />}
@@ -153,16 +170,22 @@ export default function InventorySummaryList() {
         loading={isLoading}
         dataSource={data}
         columns={columns}
-        pagination={{
-          current: filters.page as number || 1,
-          pageSize: filters.limit as number || 20,
-          total: pagination?.total || 0,
-          showSizeChanger: false,
-          showQuickJumper: true,
-          showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
-          onChange: (newPage) => goToPage(newPage)
-        }}
+        pagination={false}
       />
+      
+      {pagination && (
+        <div className="mt-4">
+          <Pagination
+            current={pagination.page || filters.page || 1}
+            pageSize={pagination.limit || filters.limit || 20}
+            total={pagination.total || 0}
+            onChange={(page: number, pageSize: number) => {
+              setFilter('page', page);
+              setFilter('limit', pageSize);
+            }}
+          />
+        </div>
+      )}
 
       {/* Detail Modal */}
       <Modal

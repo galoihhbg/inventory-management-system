@@ -2,29 +2,30 @@ import React, { useMemo } from 'react';
 import { Menu } from 'antd';
 import { Link, useLocation } from 'react-router-dom';
 import { HomeOutlined, DatabaseOutlined, AppstoreOutlined, TeamOutlined, SettingOutlined, UnlockOutlined, ShoppingCartOutlined, StockOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { DEFAULT_PERMISSIONS, DISPLAY_CONFIG_KEY } from '../config/permissions';
 
 type MenuItem = {
   key: string;
-  label: string;
+  labelKey: string; // Key để dịch từ i18n
   path: string;
   icon?: React.ReactNode;
 };
 
 const ITEMS: MenuItem[] = [
-  { key: 'dashboard', label: 'Dashboard', path: '/dashboard', icon: <HomeOutlined /> },
-  { key: 'warehouses', label: 'Warehouses', path: '/warehouses', icon: <DatabaseOutlined /> },
-  { key: 'items', label: 'Items', path: '/items', icon: <AppstoreOutlined /> },
-  { key: 'inventoryStock', label: 'Inventory Stock', path: '/inventory-stock', icon: <StockOutlined /> },
-  { key: 'inventorySummary', label: 'Inventory Summary', path: '/inventory-summary', icon: <StockOutlined /> },
-  { key: 'purchaseOrders', label: 'Purchase Orders', path: '/purchase-orders', icon: <ShoppingCartOutlined /> },
-  { key: 'users', label: 'Users', path: '/users', icon: <TeamOutlined /> },
-  { key: 'roles', label: 'Roles', path: '/roles', icon: <UnlockOutlined /> },
-  { key: 'partners', label: 'Partners', path: '/partners', icon: <DatabaseOutlined /> },
-  { key: 'bins', label: 'Bins', path: '/bins', icon: <DatabaseOutlined /> },
-  { key: 'baseUnits', label: 'Base Units', path: '/base-units', icon: <DatabaseOutlined /> },
-  { key: 'settings', label: 'Settings', path: '/settings/display', icon: <SettingOutlined /> }
+  { key: 'dashboard', labelKey: 'navigation.dashboard', path: '/dashboard', icon: <HomeOutlined /> },
+  { key: 'warehouses', labelKey: 'navigation.warehouses', path: '/warehouses', icon: <DatabaseOutlined /> },
+  { key: 'items', labelKey: 'navigation.items', path: '/items', icon: <AppstoreOutlined /> },
+  { key: 'inventoryStock', labelKey: 'navigation.inventory', path: '/inventory-stock', icon: <StockOutlined /> },
+  { key: 'inventorySummary', labelKey: 'navigation.inventory', path: '/inventory-summary', icon: <StockOutlined /> },
+  { key: 'purchaseOrders', labelKey: 'navigation.purchaseOrders', path: '/purchase-orders', icon: <ShoppingCartOutlined /> },
+  { key: 'users', labelKey: 'navigation.users', path: '/users', icon: <TeamOutlined /> },
+  { key: 'roles', labelKey: 'navigation.roles', path: '/roles', icon: <UnlockOutlined /> },
+  { key: 'partners', labelKey: 'navigation.partners', path: '/partners', icon: <DatabaseOutlined /> },
+  { key: 'bins', labelKey: 'navigation.bins', path: '/bins', icon: <DatabaseOutlined /> },
+  { key: 'baseUnits', labelKey: 'navigation.baseUnits', path: '/base-units', icon: <DatabaseOutlined /> },
+  { key: 'settings', labelKey: 'navigation.settings', path: '/settings/display', icon: <SettingOutlined /> }
 ];
 
 function loadDisplayConfig(): Record<string, string[]> | null {
@@ -39,6 +40,7 @@ function loadDisplayConfig(): Record<string, string[]> | null {
 export default function Sidebar() {
   const { pathname } = useLocation();
   const { hasRole } = useAuth();
+  const { t } = useTranslation();
 
   const displayConfig = useMemo(() => {
     const custom = loadDisplayConfig();
@@ -57,7 +59,7 @@ export default function Sidebar() {
     <Menu selectedKeys={[pathname]} mode="inline" style={{ height: '100%', borderRight: 0 }}>
       {visibleItems.map((it) => (
         <Menu.Item key={it.path} icon={it.icon}>
-          <Link to={it.path}>{it.label}</Link>
+          <Link to={it.path}>{t(it.labelKey)}</Link>
         </Menu.Item>
       ))}
     </Menu>

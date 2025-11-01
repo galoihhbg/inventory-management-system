@@ -1,9 +1,12 @@
 import React from 'react';
 import { Row, Col, Card, Statistic, Space } from 'antd';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import client from '../api/client';
 
 export default function Dashboard() {
+  const { t } = useTranslation();
+  
   const { data: health } = useQuery({
     queryKey: ['health'],
     queryFn: async () => {
@@ -33,29 +36,29 @@ export default function Dashboard() {
 
   return (
     <div>
-      <h2 className="mb-6">Dashboard</h2>
+      <h2 className="mb-6">{t('navigation.dashboard')}</h2>
       <Space direction="vertical" size="large" style={{ width: '100%' }}>
         <Row gutter={16}>
           <Col span={8}>
             <Card>
-              <Statistic title="Warehouses" value={warehousesCount || 0} />
+              <Statistic title={t('navigation.warehouses')} value={warehousesCount || 0} />
             </Card>
           </Col>
           <Col span={8}>
             <Card>
-              <Statistic title="Items" value={itemsCount || 0} />
+              <Statistic title={t('navigation.items')} value={itemsCount || 0} />
             </Card>
           </Col>
           <Col span={8}>
             <Card>
-              <Statistic title="Health" value={health?.status || 'unknown'} />
+              <Statistic title={t('dashboard.health')} value={health?.status || t('dashboard.unknown')} />
             </Card>
           </Col>
         </Row>
 
         <Card>
-          <h3>Quick actions</h3>
-          <p>Create, edit, and manage your inventory using the left navigation. The center grid in each category shows the data and supports inline interactions.</p>
+          <h3>{t('dashboard.quickActions')}</h3>
+          <p>{t('dashboard.quickActionsDescription')}</p>
         </Card>
       </Space>
     </div>

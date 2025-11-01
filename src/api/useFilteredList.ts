@@ -2,34 +2,7 @@ import { useState, useMemo, useCallback } from 'react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
 import client from './client';
-
-/**
- * Base filter interface matching the backend Filter struct
- */
-export interface BaseFilter {
-  page?: number;
-  limit?: number;
-  order?: string;
-  cursor?: string;
-  search?: string;
-  from?: string; // ISO date string
-  to?: string;   // ISO date string
-}
-
-/**
- * Response type for list endpoints
- */
-export interface ListResponse<T> {
-  data: T[];
-  meta?: any;
-  pagination?: {
-    page?: number;
-    limit?: number;
-    total?: number;
-    totalPages?: number;
-    nextCursor?: string;
-  };
-}
+import { BaseFilter, ListResponse, ApiError } from '../types';
 
 /**
  * Options for the useFilteredList hook
@@ -61,7 +34,7 @@ export interface UseFilteredListOptions<TFilter extends BaseFilter = BaseFilter>
  *   initialFilters: { status: 'draft' }
  * });
  */
-export function useFilteredList<T = any, TFilter extends BaseFilter = BaseFilter>({
+export function useFilteredList<T, TFilter extends BaseFilter = BaseFilter>({
   endpoint,
   initialFilters = {},
   syncWithUrl = false,
@@ -72,7 +45,7 @@ export function useFilteredList<T = any, TFilter extends BaseFilter = BaseFilter
   // Initialize filters from URL params if syncWithUrl is enabled
   const getInitialFilters = useCallback((): TFilter => {
     if (syncWithUrl) {
-      const urlFilters: any = {};
+      const urlFilters: Record<string, unknown> = {};
       searchParams.forEach((value, key) => {
         // Parse numeric values
         if (key === 'page' || key === 'limit') {
@@ -124,7 +97,7 @@ export function useFilteredList<T = any, TFilter extends BaseFilter = BaseFilter
 
   // Build query params for API call
   const queryParams = useMemo(() => {
-    const params: Record<string, any> = {};
+    const params: Record<string, unknown> = {};
     Object.entries(filters).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '') {
         params[key] = value;
@@ -134,7 +107,7 @@ export function useFilteredList<T = any, TFilter extends BaseFilter = BaseFilter
   }, [filters]);
 
   // Fetch data with filters
-  const { data, isLoading, error, refetch, isFetching } = useQuery<ListResponse<T>>({
+  const { data, isLoading, error, refetch, isFetching } = useQuery<ListResponse<T>, ApiError>({
     queryKey: [endpoint, queryParams],
     queryFn: async () => {
       const res = await client.get(endpoint, { params: queryParams });

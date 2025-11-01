@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Input, Select, Button, Space, Card, Descriptions, Modal } from 'antd';
-import { EyeOutlined } from '@ant-design/icons';
+import { EyeOutlined, ReloadOutlined } from '@ant-design/icons';
 import { useSearchParams } from 'react-router-dom';
-import { useFilteredList, BaseFilter } from '../../api/hooks';
+import { useFilteredList } from '../../api/hooks';
+import { BaseFilter } from '../../types';
 
 type InventoryStockFilterItem = {
   id: number;
@@ -64,8 +65,17 @@ export default function InventoryStockFilterList() {
   };
 
   // Fetch inventory stock data with filters
-  const { data, isLoading, filters, setFilter, setFilters, resetFilters, pagination } = 
-    useFilteredList<InventoryStockFilterItem, InventoryStockCustomFilter>({
+  const { 
+    data, 
+    isLoading, 
+    isFetching,
+    filters, 
+    setFilter, 
+    setFilters, 
+    resetFilters, 
+    pagination,
+    refetch 
+  } = useFilteredList<InventoryStockFilterItem, InventoryStockCustomFilter>({
       endpoint: '/inventory-stock/filter',
       initialFilters: getInitialFilters(),
       syncWithUrl: true
@@ -150,8 +160,16 @@ export default function InventoryStockFilterList() {
 
   return (
     <div>
-      <div className="mb-4">
+      <div className="flex items-center justify-between mb-4">
         <h3>Inventory Stock - Detailed View</h3>
+        <Button 
+          icon={<ReloadOutlined />} 
+          onClick={() => refetch()}
+          loading={isFetching}
+          title="Refresh data"
+        >
+          Refresh
+        </Button>
       </div>
 
       {/* Filters */}

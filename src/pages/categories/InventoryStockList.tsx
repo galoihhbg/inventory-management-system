@@ -1,8 +1,10 @@
 import React from 'react';
 import { Table, Input, Select, Button } from 'antd';
-import { useFilteredList, BaseFilter } from '../../api/hooks';
+import { useFilteredList } from '../../api/hooks';
 import { useNavigate } from 'react-router-dom';
-import { FilterOutlined } from '@ant-design/icons';
+import { FilterOutlined, ReloadOutlined } from '@ant-design/icons';
+import { BaseFilter } from '../../types';
+import Pagination from '../../components/Pagination';
 
 type InventoryStockItem = {
   itemId: number;
@@ -33,9 +35,17 @@ export default function InventoryStockList() {
   });
 
   // Fetch inventory stock data
-  const { data, isLoading, filters, setFilter, pagination } = useFilteredList<InventoryStockItem, InventoryStockFilter>({
+  const { 
+    data, 
+    isLoading, 
+    isFetching,
+    filters, 
+    setFilter, 
+    pagination,
+    refetch 
+  } = useFilteredList<InventoryStockItem, InventoryStockFilter>({
     endpoint: '/inventory-stock/items/aggregation',
-    initialFilters: { limit: 50 }
+    initialFilters: { limit: 20, page: 1 }
   });
 
   const columns = [
@@ -106,6 +116,14 @@ export default function InventoryStockList() {
             style={{ width: 240 }}
           />
           <Button 
+            icon={<ReloadOutlined />} 
+            onClick={() => refetch()}
+            loading={isFetching}
+            title="Refresh"
+          >
+            Refresh
+          </Button>
+          <Button 
             type="primary" 
             icon={<FilterOutlined />}
             onClick={() => navigate('/inventory-stock/filter')}
@@ -120,12 +138,26 @@ export default function InventoryStockList() {
         loading={isLoading}
         dataSource={data}
         columns={columns}
-        pagination={{ pageSize: 10, total: pagination?.total }}
+        pagination={false}
         onRow={(record) => ({
           onClick: () => handleRowClick(record),
           style: { cursor: 'pointer' }
         })}
       />
+      
+      {pagination && (
+        <div className="mt-4">
+          <Pagination
+            current={pagination.page || filters.page || 1}
+            pageSize={pagination.limit || filters.limit || 20}
+            total={pagination.total || 0}
+            onChange={(page: number, pageSize: number) => {
+              setFilter('page', page);
+              setFilter('limit', pageSize);
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }

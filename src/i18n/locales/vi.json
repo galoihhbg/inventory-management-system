@@ -1,0 +1,171 @@
+{
+  "common": {
+    "create": "Tạo mới",
+    "edit": "Chỉnh sửa", 
+    "update": "Cập nhật",
+    "cancel": "Hủy",
+    "save": "Lưu",
+    "delete": "Xóa",
+    "refresh": "Làm mới",
+    "search": "Tìm kiếm",
+    "loading": "Đang tải...",
+    "error": "Lỗi",
+    "success": "Thành công",
+    "confirm": "Xác nhận",
+    "yes": "Có",
+    "no": "Không",
+    "ok": "Đồng ý",
+    "close": "Đóng",
+    "back": "Quay lại",
+    "next": "Tiếp theo",
+    "previous": "Trước đó",
+    "required": "Bắt buộc",
+    "optional": "Tùy chọn",
+    "description": "Mô tả",
+    "name": "Tên",
+    "code": "Mã",
+    "status": "Trạng thái",
+    "active": "Hoạt động",
+    "inactive": "Không hoạt động",
+    "actions": "Thao tác",
+    "total": "Tổng cộng",
+    "page": "Trang",
+    "of": "của",
+    "language": "Ngôn ngữ",
+    "systemTitle": "Hệ thống quản lý kho",
+    "profile": "Hồ sơ",
+    "confirmDelete": "Bạn có chắc chắn muốn xóa mục này?"
+  },
+  "auth": {
+    "login": "Đăng nhập",
+    "logout": "Đăng xuất",
+    "username": "Tên đăng nhập",
+    "password": "Mật khẩu",
+    "email": "Email",
+    "forgotPassword": "Quên mật khẩu?",
+    "rememberMe": "Ghi nhớ đăng nhập",
+    "loginSuccess": "Đăng nhập thành công",
+    "loginFailed": "Đăng nhập thất bại",
+    "unauthorized": "Không có quyền truy cập",
+    "sessionExpired": "Phiên đăng nhập đã hết hạn"
+  },
+  "dashboard": {
+    "health": "Sức khỏe hệ thống",
+    "unknown": "Không xác định",
+    "quickActions": "Thao tác nhanh",
+    "quickActionsDescription": "Tạo mới, chỉnh sửa và quản lý kho hàng của bạn sử dụng menu bên trái. Bảng dữ liệu ở giữa mỗi danh mục hiển thị dữ liệu và hỗ trợ tương tác trực tiếp."
+  },
+  "navigation": {
+    "dashboard": "Bảng điều khiển",
+    "inventory": "Kho hàng",
+    "warehouses": "Kho",
+    "bins": "Vị trí",
+    "items": "Sản phẩm",
+    "partners": "Đối tác",
+    "purchaseOrders": "Đơn mua hàng",
+    "users": "Người dùng",
+    "roles": "Vai trò",
+    "settings": "Cài đặt",
+    "categories": "Danh mục",
+    "baseUnits": "Đơn vị cơ bản",
+    "roleManagement": "Quản lý vai trò"
+  },
+  "bins": {
+    "title": "Quản lý vị trí",
+    "newBin": "Thêm vị trí mới",
+    "editBin": "Chỉnh sửa vị trí",
+    "locationCode": "Mã vị trí",
+    "warehouse": "Kho",
+    "area": "Khu vực",
+    "row": "Dãy", 
+    "floor": "Tầng",
+    "isReceivingBin": "Đánh dấu là vị trí tiếp nhận hàng",
+    "selectWarehouse": "Chọn kho",
+    "areaPlaceholder": "VD: A, B, C",
+    "rowPlaceholder": "VD: 1, 2, 3",
+    "floorPlaceholder": "VD: 1, 2, 3",
+    "binNameWillBeGenerated": "Tên vị trí sẽ được tạo tự động:",
+    "example": "Ví dụ: Khu A, Dãy 1, Tầng 1 → A-01-01",
+    "preview": "Xem trước:",
+    "areaRequired": "Khu vực là bắt buộc",
+    "rowRequired": "Dãy là bắt buộc", 
+    "floorRequired": "Tầng là bắt buộc",
+    "rowMustBeNumber": "Dãy phải là số",
+    "floorMustBeNumber": "Tầng phải là số",
+    "warehouseRequired": "Kho là bắt buộc",
+    "binCreatedSuccess": "Tạo vị trí thành công",
+    "binUpdatedSuccess": "Cập nhật vị trí thành công",
+    "couldNotFetchBin": "Không thể tải thông tin vị trí",
+    "saveFailed": "Lưu thất bại",
+    "refreshWarehouses": "Làm mới danh sách kho"
+  },
+  "warehouses": {
+    "title": "Quản lý kho",
+    "newWarehouse": "Thêm kho mới",
+    "editWarehouse": "Chỉnh sửa kho",
+    "address": "Địa chỉ"
+  },
+  "items": {
+    "title": "Quản lý sản phẩm",
+    "newItem": "Thêm sản phẩm mới",
+    "editItem": "Chỉnh sửa sản phẩm",
+    "baseUnit": "Đơn vị cơ bản",
+    "unitPrice": "Đơn giá"
+  },
+  "partners": {
+    "title": "Quản lý đối tác",
+    "newPartner": "Thêm đối tác mới",
+    "editPartner": "Chỉnh sửa đối tác"
+  },
+  "users": {
+    "title": "Quản lý người dùng",
+    "newUser": "Thêm người dùng mới",
+    "editUser": "Chỉnh sửa người dùng"
+  },
+  "roles": {
+    "title": "Quản lý vai trò",
+    "newRole": "Thêm vai trò mới",
+    "editRole": "Chỉnh sửa vai trò",
+    "roleName": "Tên vai trò",
+    "confirmDelete": "Bạn có chắc chắn muốn xóa vai trò này?",
+    "deleteFailed": "Xóa thất bại"
+  },
+  "roleManagement": {
+    "title": "Quản lý vai trò - Gán vai trò cho người dùng",
+    "role": "Vai trò",
+    "selectRole": "Chọn vai trò",
+    "selectRoleWarning": "Vui lòng chọn vai trò trước khi lưu",
+    "roleAssigned": "Gán vai trò thành công",
+    "saveFailed": "Lưu thất bại",
+    "saveAll": "Lưu tất cả",
+    "rolesSaved": "Đã lưu tất cả vai trò thành công",
+    "bulkSaveFailed": "Lưu hàng loạt thất bại"
+  },
+  "pagination": {
+    "show": "Hiển thị",
+    "perPage": "mỗi trang",
+    "showingItems": "{{start}}-{{end}} trong tổng {{total}} mục"
+  },
+  "api": {
+    "createFailed": "Tạo mới thất bại",
+    "updateFailed": "Cập nhật thất bại", 
+    "deleteFailed": "Xóa thất bại",
+    "fetchFailed": "Tải dữ liệu thất bại",
+    "operationFailed": "Thao tác thất bại",
+    "createSuccess": "Tạo mới thành công",
+    "updateSuccess": "Cập nhật thành công",
+    "deleteSuccess": "Xóa thành công"
+  },
+  "settings": {
+    "displaySettings": "Cài đặt hiển thị",
+    "menu": "Menu",
+    "visibleToRoles": "Hiển thị với vai trò",
+    "savedDisplaySettings": "Đã lưu cài đặt hiển thị thành công",
+    "resetToDefaults": "Khôi phục về mặc định"
+  },
+  "validation": {
+    "required": "{{field}} là bắt buộc",
+    "mustBeNumber": "{{field}} phải là số",
+    "invalidFormat": "Định dạng không hợp lệ"
+  }
+}

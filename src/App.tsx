@@ -26,6 +26,7 @@ import PartnerForm from './pages/categories/PartnerForm';
 import BinForm from './pages/categories/BinForm';
 import BaseUnitForm from './pages/categories/BaseUnitForm';
 import RoleAssign from './pages/RoleManagement/RoleAssign';
+import I18nDemo from './pages/I18nDemo';
 
 // Purchase Orders
 import PurchaseOrdersList from './pages/categories/PurchaseOrdersList';
@@ -117,6 +118,9 @@ function App() {
 
               {/* Role management */}
               <Route path="/settings/roles" element={<ProtectedRoute roles="admin"><RoleAssign /></ProtectedRoute>} />
+              
+              {/* Demo & Test Pages */}
+              <Route path="/i18n-demo" element={<ProtectedRoute roles={['admin', 'manager', 'user']}><I18nDemo /></ProtectedRoute>} />
 
               <Route path="/unauthorized" element={<Unauthorized />} />
               <Route path="/" element={<Navigate to="/dashboard" replace />} />

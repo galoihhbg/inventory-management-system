@@ -1,11 +1,14 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Card, Table, Switch, Button, Space, notification } from 'antd';
+import { useTranslation } from 'react-i18next';
 import { DEFAULT_PERMISSIONS, DISPLAY_CONFIG_KEY } from '../../config/permissions';
 
 const ALL_ROLES = ['admin', 'manager', 'user'];
 const MENU_KEYS = Object.keys(DEFAULT_PERMISSIONS);
 
 export default function DisplaySettings() {
+  const { t } = useTranslation();
+  
   const [config, setConfig] = useState<Record<string, string[]>>(() => {
     try {
       const raw = localStorage.getItem(DISPLAY_CONFIG_KEY);
@@ -23,14 +26,14 @@ export default function DisplaySettings() {
 
   const save = () => {
     localStorage.setItem(DISPLAY_CONFIG_KEY, JSON.stringify(config));
-    notification.success({ message: 'Saved display settings' });
+    notification.success({ message: t('settings.savedDisplaySettings') });
     window.location.reload();
   };
 
   const reset = () => {
     localStorage.removeItem(DISPLAY_CONFIG_KEY);
     setConfig({ ...DEFAULT_PERMISSIONS });
-    notification.success({ message: 'Reset to defaults' });
+    notification.success({ message: t('settings.resetToDefaults') });
     window.location.reload();
   };
 
@@ -54,9 +57,9 @@ export default function DisplaySettings() {
   };
 
   const columns = [
-    { title: 'Menu', dataIndex: 'menu', key: 'menu', render: (t: string) => <b>{t}</b> },
+    { title: t('settings.menu'), dataIndex: 'menu', key: 'menu', render: (text: string) => <b>{text}</b> },
     {
-      title: 'Visible to roles',
+      title: t('settings.visibleToRoles'),
       key: 'roles',
       render: (_: any, record: any) => (
         <Space>
@@ -75,14 +78,14 @@ export default function DisplaySettings() {
   ];
 
   return (
-    <Card title="Display Settings">
+    <Card title={t('settings.displaySettings')}>
       <Table dataSource={dataSource} columns={columns} pagination={false} rowKey="key" />
       <div style={{ marginTop: 16 }}>
         <Space>
           <Button type="primary" onClick={save}>
-            Save
+            {t('common.save')}
           </Button>
-          <Button onClick={reset}>Reset to defaults</Button>
+          <Button onClick={reset}>{t('settings.resetToDefaults')}</Button>
         </Space>
       </div>
     </Card>

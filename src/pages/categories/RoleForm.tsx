@@ -15,7 +15,7 @@ export default function RoleForm() {
         try {
           const res = await getOne.mutateAsync(id);
           const payload = res?.data || res;
-          form.setFieldsValue({ roleName: payload.roleName || payload.name });
+          form.setFieldsValue({ roleName: (payload as any).roleName || (payload as any).name });
         } catch (err: any) {
           notification.error({ message: 'Could not fetch role', description: err?.message });
         }

@@ -21,10 +21,10 @@ export default function ItemForm() {
           const res = await getOne.mutateAsync(id);
           const payload = res?.data || res;
           form.setFieldsValue({
-            code: payload.code,
-            name: payload.name,
-            baseUnitId: payload.baseUnitId ?? (payload.baseUnit ? payload.baseUnit.id : undefined),
-            description: payload.description
+            code: (payload as any).code,
+            name: (payload as any).name,
+            baseUnitId: (payload as any).baseUnitId ?? ((payload as any).baseUnit ? (payload as any).baseUnit.id : undefined),
+            description: (payload as any).description
           });
         } catch (err: any) {
           notification.error({ message: 'Could not fetch item', description: err?.message });

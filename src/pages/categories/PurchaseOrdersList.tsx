@@ -1,14 +1,12 @@
 import React from 'react';
 import { Button, Table, Space, Input, Select, Tag } from 'antd';
-import { PlusOutlined, EyeOutlined } from '@ant-design/icons';
+import { PlusOutlined, EyeOutlined, ReloadOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
-import { useFilteredList, BaseFilter } from '../../api/hooks';
+import { useFilteredList } from '../../api/hooks';
+import { PurchaseOrderFilter } from '../../types';
+import Pagination from '../../components/Pagination';
 
 const { Option } = Select;
-
-interface PurchaseOrderFilter extends BaseFilter {
-  status?: string;
-}
 
 const columns = [
   { 
@@ -48,9 +46,17 @@ const columns = [
 export default function PurchaseOrdersList() {
   const navigate = useNavigate();
 
-  const { data, isLoading, filters, setFilter } = useFilteredList<any, PurchaseOrderFilter>({
+  const { 
+    data, 
+    isLoading, 
+    isFetching,
+    filters, 
+    setFilter, 
+    pagination,
+    refetch 
+  } = useFilteredList<any, PurchaseOrderFilter>({
     endpoint: '/purchase-orders',
-    initialFilters: { limit: 50 }
+    initialFilters: { limit: 20, page: 1 }
   });
 
   const cols = [
@@ -67,6 +73,11 @@ export default function PurchaseOrdersList() {
       )
     }
   ];
+
+  const handlePaginationChange = (page: number, pageSize: number) => {
+    setFilter('page', page);
+    setFilter('limit', pageSize);
+  };
 
   return (
     <div>
@@ -90,6 +101,14 @@ export default function PurchaseOrdersList() {
             allowClear
             style={{ width: 240 }} 
           />
+          <Button 
+            icon={<ReloadOutlined />} 
+            onClick={() => refetch()}
+            loading={isFetching}
+            title="Refresh"
+          >
+            Refresh
+          </Button>
           <Link to="/purchase-orders/new">
             <Button type="primary" icon={<PlusOutlined />}>
               New
@@ -103,8 +122,19 @@ export default function PurchaseOrdersList() {
         loading={isLoading} 
         dataSource={data} 
         columns={cols} 
-        pagination={{ pageSize: 10 }} 
+        pagination={false}
       />
+      
+      {pagination && (
+        <div className="mt-4">
+          <Pagination
+            current={pagination.page || filters.page || 1}
+            pageSize={pagination.limit || filters.limit || 20}
+            total={pagination.total || 0}
+            onChange={handlePaginationChange}
+          />
+        </div>
+      )}
     </div>
   );
 }

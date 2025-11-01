@@ -1,22 +1,28 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Card, Button, notification, Descriptions, Table, Space, Tag, Modal, Form, Select, Spin, InputNumber } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
-import { CheckCircleOutlined, ArrowLeftOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, ArrowLeftOutlined, ReloadOutlined } from '@ant-design/icons';
 import client from '../../api/client';
 import { useEntityList } from '../../api/hooks';
+import { PurchaseOrder, Bin, ApiError } from '../../types';
 
 const { Option } = Select;
 
 export default function PurchaseOrderDetail() {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [purchaseOrder, setPurchaseOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [confirmModalVisible, setConfirmModalVisible] = useState(false);
   const [confirmForm] = Form.useForm();
-  const [confirmItems, setConfirmItems] = useState<any[]>([]);
+  const [confirmItems, setConfirmItems] = useState<Record<string, unknown>[]>([]);
 
-  const { data: binsData, isLoading: binsLoading } = useEntityList<any>('/bins', { limit: 200 });
+  const { 
+    data: binsData, 
+    isLoading: binsLoading,
+    refetch: refetchBins 
+  } = useEntityList<Bin>('/bins', { limit: 200 });
+  
   const bins = useMemo(() => binsData?.data || [], [binsData]);
 
   useEffect(() => {
@@ -49,7 +55,7 @@ export default function PurchaseOrderDetail() {
         binId: item.binId || item.originalBinId
       }));
 
-      if (itemsToConfirm.some(item => !item.binId || item.actualQuantity <= 0)) {
+      if (itemsToConfirm.some((item: any) => !item.binId || (item.actualQuantity as number) <= 0)) {
         notification.error({ message: 'Please set bin location and actual quantity for all items' });
         return;
       }
@@ -122,6 +128,14 @@ export default function PurchaseOrderDetail() {
       <Space className="mb-4">
         <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/purchase-orders')}>
           Back
+        </Button>
+        <Button 
+          icon={<ReloadOutlined />} 
+          onClick={fetchPurchaseOrder}
+          loading={loading}
+          title="Refresh"
+        >
+          Refresh
         </Button>
         {purchaseOrder.purchaseOrderStatus === 'draft' && (
           <Button 
