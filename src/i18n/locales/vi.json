@@ -6,6 +6,7 @@
     "cancel": "Hủy",
     "save": "Lưu",
     "delete": "Xóa",
+    "restore": "Khôi phục",
     "refresh": "Làm mới",
     "search": "Tìm kiếm",
     "loading": "Đang tải...",
@@ -150,11 +151,13 @@
     "createFailed": "Tạo mới thất bại",
     "updateFailed": "Cập nhật thất bại", 
     "deleteFailed": "Xóa thất bại",
+    "restoreFailed": "Khôi phục thất bại",
     "fetchFailed": "Tải dữ liệu thất bại",
     "operationFailed": "Thao tác thất bại",
     "createSuccess": "Tạo mới thành công",
     "updateSuccess": "Cập nhật thành công",
-    "deleteSuccess": "Xóa thành công"
+    "deleteSuccess": "Xóa thành công",
+    "restoreSuccess": "Khôi phục thành công"
   },
   "settings": {
     "displaySettings": "Cài đặt hiển thị",
