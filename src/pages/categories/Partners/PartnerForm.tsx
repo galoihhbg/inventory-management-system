@@ -1,27 +1,31 @@
 import React, { useEffect } from 'react';
-import { Card, Form, Input, Button, notification } from 'antd';
+import { Card, Form, Input, Button, notification, Spin } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useEntityCRUD } from '../../../api/hooks';
+import { useEntityCRUD, useEntityById } from '../../../api/hooks';
 
 export default function PartnerForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [form] = Form.useForm();
-  const { create, update, getOne } = useEntityCRUD('/partners');
+  const { create, update } = useEntityCRUD('/partners');
 
+  // Fetch partner data when editing
+  const { data: partnerData, isLoading: partnerLoading, error: partnerError } = useEntityById<any>('/partners', id);
+
+  // Show error when fetching partner data
   useEffect(() => {
-    if (id) {
-      (async () => {
-        try {
-          const res = await getOne.mutateAsync(id);
-          const d = res.data || res;
-          form.setFieldsValue(d);
-        } catch (err: any) {
-          notification.error({ message: 'Could not fetch partner', description: err?.message });
-        }
-      })();
+    if (partnerError) {
+      notification.error({ message: 'Could not fetch partner', description: partnerError.message });
     }
-  }, [id]);
+  }, [partnerError]);
+
+  // Fill form when partner data is loaded
+  useEffect(() => {
+    if (partnerData) {
+      const partner = partnerData.data || partnerData;
+      form.setFieldsValue(partner);
+    }
+  }, [partnerData, form]);
 
   const onFinish = async (values: any) => {
     try {
@@ -37,6 +41,17 @@ export default function PartnerForm() {
       notification.error({ message: 'Save failed', description: err?.response?.data?.message || err.message });
     }
   };
+
+  // Show loading when fetching partner data
+  if (id && partnerLoading) {
+    return (
+      <Card title="Edit Partner">
+        <div style={{ textAlign: 'center', padding: '50px' }}>
+          <Spin size="large" />
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card title={id ? 'Edit Partner' : 'New Partner'}>

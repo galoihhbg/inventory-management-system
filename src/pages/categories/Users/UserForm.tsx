@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { Card, Form, Input, Button, notification, Select, Spin } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useEntityCRUD, useEntityList } from '../../../api/hooks';
+import { useEntityCRUD, useEntityList, useEntityById } from '../../../api/hooks';
 
 const { Option } = Select;
 
@@ -9,28 +9,32 @@ export default function UserForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [form] = Form.useForm();
-  const { create, update, getOne } = useEntityCRUD('/users');
+  const { create, update } = useEntityCRUD('/users');
   const { data: rolesData, isLoading: rolesLoading } = useEntityList<any>('/roles', { limit: 100 });
 
   const roles = useMemo(() => rolesData?.data || [], [rolesData]);
 
+  // Fetch user data when editing
+  const { data: userData, isLoading: userLoading, error: userError } = useEntityById<any>('/users', id);
+
+  // Show error when fetching user data
   useEffect(() => {
-    if (id) {
-      (async () => {
-        try {
-          const res = await getOne.mutateAsync(id);
-          const payload = res?.data || res;
-          form.setFieldsValue({
-            username: (payload as any).username,
-            email: (payload as any).email,
-            roleId: (payload as any).roleId ?? ((payload as any).role ? (payload as any).role.id : undefined)
-          });
-        } catch (err: any) {
-          notification.error({ message: 'Could not fetch user', description: err?.message });
-        }
-      })();
+    if (userError) {
+      notification.error({ message: 'Could not fetch user', description: userError.message });
     }
-  }, [id]);
+  }, [userError]);
+
+  // Fill form when user data is loaded
+  useEffect(() => {
+    if (userData) {
+      const user = userData.data || userData;
+      form.setFieldsValue({
+        username: user.username,
+        email: user.email,
+        roleId: user.roleId ?? (user.role ? user.role.id : undefined)
+      });
+    }
+  }, [userData, form]);
 
   const onFinish = async (values: any) => {
     try {
@@ -46,6 +50,17 @@ export default function UserForm() {
       notification.error({ message: 'Save failed', description: err?.response?.data?.message || err.message });
     }
   };
+
+  // Show loading when fetching user data
+  if (id && userLoading) {
+    return (
+      <Card title="Edit User">
+        <div style={{ textAlign: 'center', padding: '50px' }}>
+          <Spin size="large" />
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card title={id ? 'Edit User' : 'New User'}>

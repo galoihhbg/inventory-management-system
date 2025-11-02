@@ -1,37 +1,40 @@
 import React, { useEffect } from 'react';
-import { Card, Form, Input, Button, notification, Checkbox } from 'antd';
+import { Card, Form, Input, Button, notification, Checkbox, Spin } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useEntityCRUD } from '../../../api/hooks';
+import { useEntityCRUD, useEntityById } from '../../../api/hooks';
 import { Warehouse, WarehouseFormData, ApiError } from '../../../types';
 
 export default function WarehouseForm() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [form] = Form.useForm<WarehouseFormData>();
-  const { create, update, getOne } = useEntityCRUD<Warehouse, WarehouseFormData, WarehouseFormData>('/warehouses');
+  const { create, update } = useEntityCRUD<Warehouse, WarehouseFormData, WarehouseFormData>('/warehouses');
 
+  // Fetch warehouse data when editing
+  const { data: warehouseData, isLoading: warehouseLoading, error: warehouseError } = useEntityById<Warehouse>('/warehouses', id);
+
+  // Show error when fetching warehouse data
   useEffect(() => {
-    if (id) {
-      (async () => {
-        try {
-          const res = await getOne.mutateAsync(id);
-          const warehouseData = res.data || res;
-          form.setFieldsValue({
-            code: warehouseData.code,
-            name: warehouseData.name,
-            address: warehouseData.address || '',
-            isActive: warehouseData.isActive
-          });
-        } catch (err) {
-          const error = err as ApiError;
-          notification.error({ 
-            message: 'Could not fetch warehouse', 
-            description: error.message 
-          });
-        }
-      })();
+    if (warehouseError) {
+      notification.error({ 
+        message: 'Could not fetch warehouse', 
+        description: warehouseError.message 
+      });
     }
-  }, [id, getOne, form]);
+  }, [warehouseError]);
+
+  // Fill form when warehouse data is loaded
+  useEffect(() => {
+    if (warehouseData) {
+      const warehouse = warehouseData.data || warehouseData;
+      form.setFieldsValue({
+        code: warehouse.code,
+        name: warehouse.name,
+        address: warehouse.address || '',
+        status: warehouse.status || 'active'
+      });
+    }
+  }, [warehouseData, form]);
 
   const onFinish = async (values: WarehouseFormData) => {
     try {
@@ -52,6 +55,17 @@ export default function WarehouseForm() {
     }
   };
 
+  // Show loading when fetching warehouse data
+  if (id && warehouseLoading) {
+    return (
+      <Card title="Edit Warehouse">
+        <div style={{ textAlign: 'center', padding: '50px' }}>
+          <Spin size="large" />
+        </div>
+      </Card>
+    );
+  }
+
   return (
     <Card title={id ? 'Edit Warehouse' : 'New Warehouse'}>
       <Form 
@@ -62,7 +76,7 @@ export default function WarehouseForm() {
           code: '', 
           name: '', 
           address: '', 
-          isActive: true 
+          status: 'active' 
         }}
       >
         <Form.Item 
@@ -85,8 +99,8 @@ export default function WarehouseForm() {
           <Input.TextArea rows={4} placeholder="Enter warehouse address (optional)" />
         </Form.Item>
 
-        <Form.Item name="isActive" valuePropName="checked">
-          <Checkbox>Active</Checkbox>
+        <Form.Item name="status" label="Status">
+          <Input placeholder="Enter status (e.g., active, inactive)" />
         </Form.Item>
 
         <Form.Item>

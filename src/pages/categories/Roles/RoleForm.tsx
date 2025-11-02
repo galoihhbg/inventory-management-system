@@ -1,27 +1,31 @@
 import React, { useEffect } from 'react';
-import { Card, Form, Input, Button, notification } from 'antd';
+import { Card, Form, Input, Button, notification, Spin } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useEntityCRUD } from '../../../api/hooks';
+import { useEntityCRUD, useEntityById } from '../../../api/hooks';
 
 export default function RoleForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [form] = Form.useForm();
-  const { create, update, getOne } = useEntityCRUD('/roles');
+  const { create, update } = useEntityCRUD('/roles');
 
+  // Fetch role data when editing
+  const { data: roleData, isLoading: roleLoading, error: roleError } = useEntityById<any>('/roles', id);
+
+  // Show error when fetching role data
   useEffect(() => {
-    if (id) {
-      (async () => {
-        try {
-          const res = await getOne.mutateAsync(id);
-          const payload = res?.data || res;
-          form.setFieldsValue({ roleName: (payload as any).roleName || (payload as any).name });
-        } catch (err: any) {
-          notification.error({ message: 'Could not fetch role', description: err?.message });
-        }
-      })();
+    if (roleError) {
+      notification.error({ message: 'Could not fetch role', description: roleError.message });
     }
-  }, [id]);
+  }, [roleError]);
+
+  // Fill form when role data is loaded
+  useEffect(() => {
+    if (roleData) {
+      const role = roleData.data || roleData;
+      form.setFieldsValue({ roleName: role.role_name || role.name });
+    }
+  }, [roleData, form]);
 
   const onFinish = async (values: any) => {
     try {
@@ -37,6 +41,17 @@ export default function RoleForm() {
       notification.error({ message: 'Save failed', description: err?.response?.data?.message || err.message });
     }
   };
+
+  // Show loading when fetching role data
+  if (id && roleLoading) {
+    return (
+      <Card title="Edit Role">
+        <div style={{ textAlign: 'center', padding: '50px' }}>
+          <Spin size="large" />
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card title={id ? 'Edit Role' : 'New Role'}>

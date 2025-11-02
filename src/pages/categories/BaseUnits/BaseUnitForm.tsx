@@ -1,27 +1,31 @@
 import React, { useEffect } from 'react';
-import { Card, Form, Input, Button, notification } from 'antd';
+import { Card, Form, Input, Button, notification, Spin } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useEntityCRUD } from '../../../api/hooks';
+import { useEntityCRUD, useEntityById } from '../../../api/hooks';
 
 export default function BaseUnitForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [form] = Form.useForm();
-  const { create, update, getOne } = useEntityCRUD('/base-units');
+  const { create, update } = useEntityCRUD('/base-units');
 
+  // Fetch base unit data when editing
+  const { data: baseUnitData, isLoading: baseUnitLoading, error: baseUnitError } = useEntityById<any>('/base-units', id);
+
+  // Show error when fetching base unit data
   useEffect(() => {
-    if (id) {
-      (async () => {
-        try {
-          const res = await getOne.mutateAsync(id);
-          const d = res.data || res;
-          form.setFieldsValue(d);
-        } catch (err: any) {
-          notification.error({ message: 'Could not fetch base unit', description: err?.message });
-        }
-      })();
+    if (baseUnitError) {
+      notification.error({ message: 'Could not fetch base unit', description: baseUnitError.message });
     }
-  }, [id]);
+  }, [baseUnitError]);
+
+  // Fill form when base unit data is loaded
+  useEffect(() => {
+    if (baseUnitData) {
+      const baseUnit = baseUnitData.data || baseUnitData;
+      form.setFieldsValue(baseUnit);
+    }
+  }, [baseUnitData, form]);
 
   const onFinish = async (values: any) => {
     try {
@@ -37,6 +41,17 @@ export default function BaseUnitForm() {
       notification.error({ message: 'Save failed', description: err?.response?.data?.message || err.message });
     }
   };
+
+  // Show loading when fetching base unit data
+  if (id && baseUnitLoading) {
+    return (
+      <Card title="Edit Base Unit">
+        <div style={{ textAlign: 'center', padding: '50px' }}>
+          <Spin size="large" />
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card title={id ? 'Edit Base Unit' : 'New Base Unit'}>

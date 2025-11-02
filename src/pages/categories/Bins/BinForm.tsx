@@ -3,7 +3,7 @@ import { Card, Form, Input, Button, notification, Select, Spin, Checkbox } from 
 import { ReloadOutlined } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useEntityCRUD, useEntityList } from '../../../api/hooks';
+import { useEntityCRUD, useEntityList, useEntityById } from '../../../api/hooks';
 import { Bin, Warehouse, BinFormData, ApiError } from '../../../types';
 
 // Type cho form với các trường mới
@@ -23,11 +23,14 @@ export default function BinForm() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [form] = Form.useForm<BinInputFormData>();
-  const { create, update, getOne } = useEntityCRUD<Bin, BinFormData, BinFormData>('/bins');
+  const { create, update } = useEntityCRUD<Bin, BinFormData, BinFormData>('/bins');
   
   // State để theo dõi giá trị form và hiển thị preview
   const [previewLocation, setPreviewLocation] = React.useState<string>('');
   const updateTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Fetch data khi edit
+  const { data: binData, isLoading: binLoading, error: binError } = useEntityById<Bin>('/bins', id);
 
   const { 
     data: warehousesData, 
@@ -56,43 +59,42 @@ export default function BinForm() {
     }, 300);
   };
 
+  // Hiển thị lỗi khi fetch data
   useEffect(() => {
-    if (id) {
-      (async () => {
-        try {
-          const res = await getOne.mutateAsync(id);
-          const binData = res.data || res;
-          
-          // Parse locationCode để tách thành area và floor
-          // Format: A-01-01 -> area: A, row: 01, floor: 01
-          const locationParts = binData.locationCode.split('-');
-          const area = locationParts[0] || '';
-          const row = locationParts[1] || '';
-          const floor = locationParts[2] || '';
-          
-          form.setFieldsValue({
-            area: area,
-            row: row,
-            floor: floor,
-            warehouseId: binData.warehouseId ?? (binData.warehouse ? binData.warehouse.id : undefined),
-            description: binData.description || '',
-            isReceivingBin: binData.isReceivingBin || false
-          });
-          
-          // Cập nhật preview sau khi load dữ liệu
-          if (area && row && floor) {
-            setPreviewLocation(`${area}-${row.padStart(2, '0')}-${floor.padStart(2, '0')}`);
-          }
-        } catch (err) {
-          const error = err as ApiError;
-          notification.error({ 
-            message: t('bins.couldNotFetchBin'), 
-            description: error.message 
-          });
-        }
-      })();
+    if (binError) {
+      notification.error({ 
+        message: t('bins.couldNotFetchBin'), 
+        description: binError.message 
+      });
     }
-  }, [id, getOne, form]);
+  }, [binError, t]);
+
+  // Fill form khi có data
+  useEffect(() => {
+    if (binData) {
+      const bin = binData.data || binData;
+      
+      // Parse locationCode để tách thành area và floor
+      // Format: A-01-01 -> area: A, row: 01, floor: 01
+      const locationParts = bin.locationCode.split('-');
+      const area = locationParts[0] || '';
+      const row = locationParts[1] || '';
+      const floor = locationParts[2] || '';
+      
+      form.setFieldsValue({
+        area: area,
+        row: row,
+        floor: floor,
+        warehouseId: bin.warehouseId ?? (bin.warehouse ? bin.warehouse.id : undefined),
+        description: bin.description || '',
+        isReceivingBin: bin.isReceivingBin || false
+      });
+      
+      if (area && row && floor) {
+        setPreviewLocation(`${area}-${row.padStart(2, '0')}-${floor.padStart(2, '0')}`);
+      }
+    }
+  }, [binData, form]);
 
   const onFinish = async (values: BinInputFormData) => {
     try {
@@ -122,6 +124,17 @@ export default function BinForm() {
       });
     }
   };
+
+  // Show loading when fetching bin data
+  if (id && binLoading) {
+    return (
+      <Card title={t('bins.editBin')}>
+        <div style={{ textAlign: 'center', padding: '50px' }}>
+          <Spin size="large" />
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card 

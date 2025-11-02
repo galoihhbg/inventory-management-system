@@ -45,12 +45,18 @@ export function useEntityCRUD<T = unknown, TCreate = Partial<T>, TUpdate = Parti
     onSuccess: () => qc.invalidateQueries({ queryKey: [endpoint] })
   });
 
-  const getOne = useMutation<ApiResponse<T>, ApiError, string | number>({
-    mutationFn: async (id: string | number) => {
+  return { create, update, remove };
+}
+
+// Hook riêng để fetch một entity
+export function useEntityById<T>(endpoint: string, id?: string | number) {
+  return useQuery<ApiResponse<T>, ApiError>({
+    queryKey: [endpoint, id],
+    queryFn: async () => {
+      if (!id) throw new Error('ID is required');
       const res = await client.get(`${endpoint}/${id}`);
       return res.data;
-    }
+    },
+    enabled: !!id
   });
-
-  return { create, update, remove, getOne };
 }

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { Card, Form, Input, Button, notification, Select, Spin } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useEntityCRUD, useEntityList } from '../../../api/hooks';
+import { useEntityCRUD, useEntityList, useEntityById } from '../../../api/hooks';
 
 const { Option } = Select;
 
@@ -9,29 +9,33 @@ export default function ItemForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [form] = Form.useForm();
-  const { create, update, getOne } = useEntityCRUD('/items');
+  const { create, update } = useEntityCRUD('/items');
 
   const { data: baseUnitsData, isLoading: baseUnitsLoading } = useEntityList<any>('/base-units', { limit: 200 });
   const baseUnits = useMemo(() => baseUnitsData?.data || [], [baseUnitsData]);
 
+  // Fetch item data when editing
+  const { data: itemData, isLoading: itemLoading, error: itemError } = useEntityById<any>('/items', id);
+
+  // Show error when fetching item data
   useEffect(() => {
-    if (id) {
-      (async () => {
-        try {
-          const res = await getOne.mutateAsync(id);
-          const payload = res?.data || res;
-          form.setFieldsValue({
-            code: (payload as any).code,
-            name: (payload as any).name,
-            baseUnitId: (payload as any).baseUnitId ?? ((payload as any).baseUnit ? (payload as any).baseUnit.id : undefined),
-            description: (payload as any).description
-          });
-        } catch (err: any) {
-          notification.error({ message: 'Could not fetch item', description: err?.message });
-        }
-      })();
+    if (itemError) {
+      notification.error({ message: 'Could not fetch item', description: itemError.message });
     }
-  }, [id]);
+  }, [itemError]);
+
+  // Fill form when item data is loaded
+  useEffect(() => {
+    if (itemData) {
+      const item = itemData.data || itemData;
+      form.setFieldsValue({
+        code: item.code,
+        name: item.name,
+        baseUnitId: item.baseUnitId ?? (item.baseUnit ? item.baseUnit.id : undefined),
+        description: item.description
+      });
+    }
+  }, [itemData, form]);
 
   const onFinish = async (values: any) => {
     try {
@@ -47,6 +51,17 @@ export default function ItemForm() {
       notification.error({ message: 'Save failed', description: err?.response?.data?.message || err.message });
     }
   };
+
+  // Show loading when fetching item data
+  if (id && itemLoading) {
+    return (
+      <Card title="Edit Item">
+        <div style={{ textAlign: 'center', padding: '50px' }}>
+          <Spin size="large" />
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card title={id ? 'Edit Item' : 'New Item'}>
