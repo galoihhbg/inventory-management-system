@@ -1,6 +1,6 @@
-import React from 'react';
-import { Button, Table, Space, Popconfirm, notification, Input } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, ReloadOutlined } from '@ant-design/icons';
+import React, { useState } from 'react';
+import { Button, Table, Space, Popconfirm, notification, Input, Tabs } from 'antd';
+import { PlusOutlined, EditOutlined, DeleteOutlined, ReloadOutlined, UndoOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useFilteredList, useEntityCRUD } from '../../../api/hooks';
@@ -16,6 +16,7 @@ export default function GenericList<T extends { id: number | string }>({
   showRefresh = true 
 }: GenericListProps<T>) {
   const { t } = useTranslation();
+  const [activeTab, setActiveTab] = useState<'active' | 'inactive'>('active');
   
   const { 
     data, 
@@ -24,14 +25,15 @@ export default function GenericList<T extends { id: number | string }>({
     pagination,
     filters,
     setFilter,
+    setFilters,
     goToPage,
     refetch 
   } = useFilteredList<T>({
     endpoint,
-    initialFilters: { limit: 20, page: 1 }
+    initialFilters: { limit: 20, page: 1, status: '1' }
   });
   
-  const { remove } = useEntityCRUD<T>(endpoint);
+  const { remove, restore } = useEntityCRUD<T>(endpoint);
   const navigate = useNavigate();
 
   const handleDelete = async (id: number | string) => {
@@ -47,6 +49,20 @@ export default function GenericList<T extends { id: number | string }>({
     }
   };
 
+  const handleRestore = async (id: number | string) => {
+    try {
+      await restore.mutateAsync(id);
+      notification.success({ message: t('api.restoreSuccess') || 'Item restored successfully' });
+      refetch();
+    } catch (err) {
+      const error = err as ApiError;
+      notification.error({ 
+        message: t('api.restoreFailed') || 'Failed to restore item', 
+        description: error.message 
+      });
+    }
+  };
+
   const handleRefresh = () => {
     refetch();
   };
@@ -56,6 +72,14 @@ export default function GenericList<T extends { id: number | string }>({
     setFilter('limit', pageSize);
   };
 
+  const handleTabChange = (key: string) => {
+    setActiveTab(key as 'active' | 'inactive');
+    setFilters({ 
+      page: 1, 
+      status: key === 'active' ? '1' : '0' 
+    });
+  };
+
   const cols: TableColumn<T>[] = [
     ...columns,
     {
@@ -63,21 +87,34 @@ export default function GenericList<T extends { id: number | string }>({
       key: 'actions',
       render: (_: unknown, record: T) => (
         <Space>
-          {editPath && (
+          {activeTab === 'active' ? (
+            <>
+              {editPath && (
+                <Button 
+                  icon={<EditOutlined />} 
+                  onClick={() => navigate(editPath(record.id))} 
+                  title={t('common.edit')}
+                />
+              )}
+              <Popconfirm 
+                title={t('common.confirmDelete')} 
+                onConfirm={() => handleDelete(record.id)}
+                okText={t('common.yes')}
+                cancelText={t('common.no')}
+              >
+                <Button danger icon={<DeleteOutlined />} title={t('common.delete')} />
+              </Popconfirm>
+            </>
+          ) : (
             <Button 
-              icon={<EditOutlined />} 
-              onClick={() => navigate(editPath(record.id))} 
-              title={t('common.edit')}
-            />
+              type="primary" 
+              icon={<UndoOutlined />} 
+              onClick={() => handleRestore(record.id)}
+              title={t('common.restore') || 'Restore'}
+            >
+              {t('common.restore') || 'Restore'}
+            </Button>
           )}
-          <Popconfirm 
-            title={t('common.confirmDelete')} 
-            onConfirm={() => handleDelete(record.id)}
-            okText={t('common.yes')}
-            cancelText={t('common.no')}
-          >
-            <Button danger icon={<DeleteOutlined />} title={t('common.delete')} />
-          </Popconfirm>
         </Space>
       )
     }
@@ -105,7 +142,7 @@ export default function GenericList<T extends { id: number | string }>({
               {t('common.refresh')}
             </Button>
           )}
-          {createPath && (
+          {activeTab === 'active' && createPath && (
             <Link to={createPath}>
               <Button type="primary" icon={<PlusOutlined />}>
                 {t('common.create')}
@@ -114,6 +151,21 @@ export default function GenericList<T extends { id: number | string }>({
           )}
         </Space>
       </div>
+
+      <Tabs 
+        activeKey={activeTab} 
+        onChange={handleTabChange}
+        items={[
+          {
+            key: 'active',
+            label: t('common.active') || 'Active',
+          },
+          {
+            key: 'inactive',
+            label: t('common.inactive') || 'Inactive',
+          }
+        ]}
+      />
 
       <Table<T> 
         rowKey="id" 

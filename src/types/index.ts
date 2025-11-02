@@ -16,6 +16,7 @@ export interface Role {
   name: string;
   description?: string;
   permissions?: Permission[];
+  status?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -45,6 +46,7 @@ export interface Bin {
   warehouse?: Warehouse;
   description?: string;
   isReceivingBin: boolean;
+  status?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -54,6 +56,7 @@ export interface BaseUnit {
   name: string;
   code: string;
   description?: string;
+  status?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -247,6 +250,7 @@ export interface BaseFilter {
   search?: string;
   from?: string;
   to?: string;
+  status?: string;
 }
 
 export interface UserFilter extends BaseFilter {
@@ -265,6 +269,19 @@ export interface ItemFilter extends BaseFilter {
 
 export interface PartnerFilter extends BaseFilter {
   type?: 'supplier' | 'customer' | 'both';
+  status?: string;
+}
+
+export interface RoleFilter extends BaseFilter {
+  status?: string;
+}
+
+export interface BinFilter extends BaseFilter {
+  warehouseId?: number;
+  status?: string;
+}
+
+export interface BaseUnitFilter extends BaseFilter {
   status?: string;
 }
 

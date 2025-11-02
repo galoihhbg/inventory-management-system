@@ -45,7 +45,15 @@ export function useEntityCRUD<T = unknown, TCreate = Partial<T>, TUpdate = Parti
     onSuccess: () => qc.invalidateQueries({ queryKey: [endpoint] })
   });
 
-  return { create, update, remove };
+  const restore = useMutation<ApiResponse<T>, ApiError, string | number>({
+    mutationFn: async (id: string | number) => {
+      const res = await client.patch(`${endpoint}/${id}/restore`);
+      return res.data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: [endpoint] })
+  });
+
+  return { create, update, remove, restore };
 }
 
 // Hook riêng để fetch một entity

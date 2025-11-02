@@ -22,6 +22,16 @@ const columns: TableColumn<Bin>[] = [
         {record.isReceivingBin ? 'Receiving Bin' : 'Storage Bin'}
       </Tag>
     )
+  },
+  {
+    title: 'Status',
+    dataIndex: 'status',
+    key: 'status',
+    render: (value: unknown, record: Bin) => (
+      <Tag color={record.status === '1' ? 'green' : 'red'}>
+        {record.status === '1' ? 'Active' : 'Inactive'}
+      </Tag>
+    )
   }
 ];
 

@@ -6,6 +6,7 @@
     "cancel": "Cancel",
     "save": "Save",
     "delete": "Delete",
+    "restore": "Restore",
     "refresh": "Refresh",
     "search": "Search",
     "loading": "Loading...",
@@ -150,11 +151,13 @@
     "createFailed": "Create failed",
     "updateFailed": "Update failed", 
     "deleteFailed": "Delete failed",
+    "restoreFailed": "Restore failed",
     "fetchFailed": "Fetch failed",
     "operationFailed": "Operation failed",
     "createSuccess": "Created successfully",
     "updateSuccess": "Updated successfully",
-    "deleteSuccess": "Deleted successfully"
+    "deleteSuccess": "Deleted successfully",
+    "restoreSuccess": "Restored successfully"
   },
   "settings": {
     "displaySettings": "Display Settings",
