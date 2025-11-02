@@ -75,6 +75,7 @@ export default function GenericList<T extends { id: number | string }>({
   const handleTabChange = (key: string) => {
     setActiveTab(key as 'active' | 'inactive');
     setFilters({ 
+      ...filters,
       page: 1, 
       status: key === 'active' ? '1' : '0' 
     });
