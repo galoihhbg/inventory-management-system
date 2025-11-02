@@ -3,7 +3,7 @@ import { Button, Table, Space, Popconfirm, notification, Input } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useFilteredList, useEntityCRUD } from '../../api/hooks';
+import { useFilteredList, useEntityCRUD } from '../../../api/hooks';
 
 export default function RolesList() {
   const { t } = useTranslation();

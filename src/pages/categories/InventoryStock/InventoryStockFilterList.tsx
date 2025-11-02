@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Table, Input, Select, Button, Space, Card, Descriptions, Modal } from 'antd';
 import { EyeOutlined, ReloadOutlined } from '@ant-design/icons';
 import { useSearchParams } from 'react-router-dom';
-import { useFilteredList } from '../../api/hooks';
-import { BaseFilter } from '../../types';
+import { useFilteredList } from '../../../api/hooks';
+import { BaseFilter } from '../../../types';
 
 type InventoryStockFilterItem = {
   id: number;

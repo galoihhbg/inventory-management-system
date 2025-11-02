@@ -2,8 +2,8 @@ import React, { useState, useMemo } from 'react';
 import { Card, Form, Button, notification, Select, InputNumber, Table, Space } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { useEntityList } from '../../api/hooks';
-import client from '../../api/client';
+import { useEntityList } from '../../../api/hooks';
+import client from '../../../api/client';
 
 const { Option } = Select;
 

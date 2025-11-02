@@ -2,9 +2,9 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { Card, Button, notification, Descriptions, Table, Space, Tag, Modal, Form, Select, Spin, InputNumber } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
 import { CheckCircleOutlined, ArrowLeftOutlined, ReloadOutlined } from '@ant-design/icons';
-import client from '../../api/client';
-import { useEntityList } from '../../api/hooks';
-import { PurchaseOrder, Bin, ApiError } from '../../types';
+import client from '../../../api/client';
+import { useEntityList } from '../../../api/hooks';
+import { PurchaseOrder, Bin, ApiError } from '../../../types';
 
 const { Option } = Select;
 

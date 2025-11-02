@@ -3,9 +3,9 @@ import { Button, Table, Space, Popconfirm, notification, Input } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, ReloadOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useFilteredList, useEntityCRUD } from '../../api/hooks';
-import Pagination from '../../components/Pagination';
-import { GenericListProps, TableColumn, ApiError } from '../../types';
+import { useFilteredList, useEntityCRUD } from '../../../api/hooks';
+import Pagination from '../../../components/Pagination';
+import { GenericListProps, TableColumn, ApiError } from '../../../types';
 
 export default function GenericList<T extends { id: number | string }>({ 
   endpoint, 

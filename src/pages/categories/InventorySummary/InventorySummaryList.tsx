@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Table, Input, Button, Space, Modal, Descriptions, notification } from 'antd';
 import { EyeOutlined, SyncOutlined, ReloadOutlined } from '@ant-design/icons';
-import { useFilteredList } from '../../api/hooks';
-import { BaseFilter } from '../../types';
-import client from '../../api/client';
-import Pagination from '../../components/Pagination';
+import { useFilteredList } from '../../../api/hooks';
+import { BaseFilter } from '../../../types';
+import client from '../../../api/client';
+import Pagination from '../../../components/Pagination';
 
 type InventorySummaryItem = {
   id: number;

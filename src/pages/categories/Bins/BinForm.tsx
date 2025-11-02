@@ -3,8 +3,8 @@ import { Card, Form, Input, Button, notification, Select, Spin, Checkbox } from 
 import { ReloadOutlined } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useEntityCRUD, useEntityList } from '../../api/hooks';
-import { Bin, Warehouse, BinFormData, ApiError } from '../../types';
+import { useEntityCRUD, useEntityList } from '../../../api/hooks';
+import { Bin, Warehouse, BinFormData, ApiError } from '../../../types';
 
 // Type cho form với các trường mới
 interface BinInputFormData {

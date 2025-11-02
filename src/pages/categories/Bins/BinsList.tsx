@@ -1,7 +1,7 @@
 import React from 'react';
 import { Tag } from 'antd';
-import GenericList from './GenericListFactory';
-import { Bin, TableColumn } from '../../types';
+import GenericList from '../shared/GenericListFactory';
+import { Bin, TableColumn } from '../../../types';
 
 const columns: TableColumn<Bin>[] = [
   { title: 'ID', dataIndex: 'id', key: 'id', width: 80 },

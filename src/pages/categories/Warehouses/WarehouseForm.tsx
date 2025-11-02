@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { Card, Form, Input, Button, notification, Checkbox } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useEntityCRUD } from '../../api/hooks';
-import { Warehouse, WarehouseFormData, ApiError } from '../../types';
+import { useEntityCRUD } from '../../../api/hooks';
+import { Warehouse, WarehouseFormData, ApiError } from '../../../types';
 
 export default function WarehouseForm() {
   const { id } = useParams<{ id: string }>();

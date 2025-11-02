@@ -1,10 +1,10 @@
 import React from 'react';
 import { Table, Input, Select, Button } from 'antd';
-import { useFilteredList } from '../../api/hooks';
+import { useFilteredList } from '../../../api/hooks';
 import { useNavigate } from 'react-router-dom';
 import { FilterOutlined, ReloadOutlined } from '@ant-design/icons';
-import { BaseFilter } from '../../types';
-import Pagination from '../../components/Pagination';
+import { BaseFilter } from '../../../types';
+import Pagination from '../../../components/Pagination';
 
 type InventoryStockItem = {
   itemId: number;
