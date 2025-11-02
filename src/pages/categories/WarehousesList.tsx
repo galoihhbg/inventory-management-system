@@ -11,14 +11,14 @@ export default function WarehousesList() {
     { title: 'ID', dataIndex: 'id', key: 'id', width: 80 },
     { title: t('common.code'), dataIndex: 'code', key: 'code', width: 140 },
     { title: t('common.name'), dataIndex: 'name', key: 'name' },
-    { title: t('warehouses.address'), dataIndex: 'address', key: 'address' },
+    // { title: t('warehouses.address'), dataIndex: 'address', key: 'address' },
     {
       title: t('common.status'),
-      dataIndex: 'isActive',
-      key: 'isActive',
+      dataIndex: 'status',
+      key: 'status',
       render: (value: unknown, record: Warehouse) => (
-        <Tag color={record.isActive ? 'green' : 'red'}>
-          {record.isActive ? t('common.active') : t('common.inactive')}
+        <Tag color={record.status === '1' ? 'green' : 'red'}>
+          {record.status === '1' ? 'Active' : 'Inactive'}
         </Tag>
       )
     }

@@ -86,6 +86,11 @@ export default function InventorySummaryList() {
       key: 'itemName'
     },
     {
+      title: 'Warehouse',
+      dataIndex: 'warehouseCode',
+      key: 'warehouseCode'
+    },
+    {
       title: 'Current Stock',
       dataIndex: 'currentStock',
       key: 'currentStock',

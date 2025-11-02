@@ -5,7 +5,7 @@ export interface User {
   email: string;
   firstName?: string;
   lastName?: string;
-  isActive: boolean;
+  status?: string;
   roles?: Role[];
   createdAt: string;
   updatedAt: string;
@@ -33,7 +33,7 @@ export interface Warehouse {
   code: string;
   name: string;
   address?: string;
-  isActive: boolean;
+  status?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -52,7 +52,7 @@ export interface Bin {
 export interface BaseUnit {
   id: number;
   name: string;
-  symbol: string;
+  code: string;
   description?: string;
   createdAt: string;
   updatedAt: string;
@@ -66,7 +66,7 @@ export interface Item {
   baseUnitId: number;
   baseUnit?: BaseUnit;
   unitPrice?: number;
-  isActive: boolean;
+  status?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -79,7 +79,7 @@ export interface Partner {
   email?: string;
   phone?: string;
   address?: string;
-  isActive: boolean;
+  status?: string
   createdAt: string;
   updatedAt: string;
 }
@@ -89,7 +89,8 @@ export interface PurchaseOrder {
   orderNumber: string;
   partnerId: number;
   partner?: Partner;
-  status: 'draft' | 'pending' | 'approved' | 'received' | 'cancelled';
+  purchaseOrderStatus: 'draft' | 'pending' | 'approved' | 'received' | 'cancelled';
+  status?: string;
   orderDate: string;
   expectedDeliveryDate?: string;
   items: PurchaseOrderItem[];
@@ -110,6 +111,10 @@ export interface PurchaseOrderItem {
   quantityReceived?: number;
   binId?: number;
   bin?: Bin;
+  currentStock?: number;                    // Current quantity in specific bin (real-time for draft, snapshot for confirmed)
+  warehouseStock?: number;                  // Total warehouse stock (real-time for draft, snapshot for confirmed)
+  stockAtConfirmation?: number;             // Stock in bin at time of confirmation (only for confirmed POs)
+  warehouseStockAtConfirmation?: number;    // Warehouse stock at time of confirmation (only for confirmed POs)
   createdAt: string;
   updatedAt: string;
 }
@@ -170,7 +175,7 @@ export interface WarehouseFormData {
   code: string;
   name: string;
   address?: string;
-  isActive: boolean;
+  status: string;
 }
 
 export interface ItemFormData {
@@ -179,7 +184,7 @@ export interface ItemFormData {
   description?: string;
   baseUnitId: number;
   unitPrice?: number;
-  isActive: boolean;
+  status: string;
 }
 
 export interface PartnerFormData {
@@ -189,7 +194,7 @@ export interface PartnerFormData {
   email?: string;
   phone?: string;
   address?: string;
-  isActive: boolean;
+  status: string;
 }
 
 export interface UserFormData {
@@ -198,7 +203,7 @@ export interface UserFormData {
   firstName?: string;
   lastName?: string;
   password?: string;
-  isActive: boolean;
+  status: string;
   roleIds?: number[];
 }
 
@@ -228,7 +233,9 @@ export interface PurchaseOrderItemFormData {
   itemId: number;
   quantityOrdered: number;
   unitPrice: number;
-  binId?: number;
+  binId: number;               // Now required since each item has its own bin
+  currentStock?: number;       // Stock info for display
+  warehouseStock?: number;     // Warehouse stock info
 }
 
 // Filter types
@@ -243,26 +250,26 @@ export interface BaseFilter {
 }
 
 export interface UserFilter extends BaseFilter {
-  isActive?: boolean;
+  status?: string;
   roleId?: number;
 }
 
 export interface WarehouseFilter extends BaseFilter {
-  isActive?: boolean;
+  status?: string;
 }
 
 export interface ItemFilter extends BaseFilter {
-  isActive?: boolean;
+  status?: string;
   baseUnitId?: number;
 }
 
 export interface PartnerFilter extends BaseFilter {
   type?: 'supplier' | 'customer' | 'both';
-  isActive?: boolean;
+  status?: string;
 }
 
 export interface PurchaseOrderFilter extends BaseFilter {
-  status?: 'draft' | 'pending' | 'approved' | 'received' | 'cancelled';
+  purchaseOrderStatus?: 'draft' | 'pending' | 'approved' | 'received' | 'cancelled';
   partnerId?: number;
 }
 

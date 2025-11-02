@@ -13,11 +13,11 @@ export default function UsersList() {
     { title: t('auth.email'), dataIndex: 'email', key: 'email' },
     {
       title: t('common.status'),
-      dataIndex: 'isActive',
-      key: 'isActive',
+      dataIndex: 'status',
+      key: 'status',
       render: (value: unknown, record: User) => (
-        <Tag color={record.isActive ? 'green' : 'red'}>
-          {record.isActive ? t('common.active') : t('common.inactive')}
+        <Tag color={record.status === '1' ? 'green' : 'red'}>
+          {record.status === '1' ? 'Active' : 'Inactive'}
         </Tag>
       )
     }

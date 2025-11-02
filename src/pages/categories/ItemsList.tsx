@@ -15,25 +15,25 @@ export default function ItemsList() {
       title: t('items.baseUnit'), 
       dataIndex: 'baseUnit', 
       key: 'baseUnitName',
-      render: (value: unknown, record: Item) => record.baseUnit?.symbol || record.baseUnit?.name || '-'
+      render: (value: unknown, record: Item) => record.baseUnit?.code || '-'
     },
-    {
-      title: t('items.unitPrice'),
-      dataIndex: 'unitPrice',
-      key: 'unitPrice',
-      render: (value: unknown, record: Item) => 
-        record.unitPrice ? `$${record.unitPrice.toFixed(2)}` : '-'
-    },
-    {
-      title: t('common.status'),
-      dataIndex: 'isActive',
-      key: 'isActive',
-      render: (value: unknown, record: Item) => (
-        <Tag color={record.isActive ? 'green' : 'red'}>
-          {record.isActive ? t('common.active') : t('common.inactive')}
-        </Tag>
-      )
-    }
+    // {
+    //   title: t('items.unitPrice'),
+    //   dataIndex: 'unitPrice',
+    //   key: 'unitPrice',
+    //   render: (value: unknown, record: Item) => 
+    //     record.unitPrice ? `$${record.unitPrice.toFixed(2)}` : '-'
+    // },
+   {
+         title: t('common.status'),
+         dataIndex: 'status',
+         key: 'status',
+         render: (value: unknown, record: Item) => (
+           <Tag color={record.status === '1' ? 'green' : 'red'}>
+             {record.status === '1' ? 'Active' : 'Inactive'}
+           </Tag>
+         )
+       }
   ];
 
   return (

@@ -86,10 +86,98 @@ export default function PurchaseOrderDetail() {
       render: (_: any, record: any) => record.item?.name || '-'
     },
     {
+      title: 'Bin Location',
+      key: 'binLocation',
+      render: (_: any, record: any) => record.bin?.code || record.bin?.locationCode || '-'
+    },
+    {
+      title: purchaseOrder?.purchaseOrderStatus === 'confirmed' ? 'Stock at Confirmation (Bin)' : 'Current Stock (Bin)',
+      key: 'binStock',
+      align: 'right' as const,
+      render: (_: any, record: any) => {
+        const isConfirmed = purchaseOrder?.purchaseOrderStatus === 'confirmed';
+        const stockValue = isConfirmed ? 
+          (record.stockAtConfirmation !== undefined ? record.stockAtConfirmation : record.currentStock) : 
+          record.currentStock;
+        
+        return (
+          <div>
+            <span className="text-blue-600">
+              {stockValue !== undefined && stockValue !== null ? stockValue.toLocaleString() : '-'}
+            </span>
+            {isConfirmed && (
+              <div className="text-xs text-gray-500">
+                (At confirmation)
+              </div>
+            )}
+            {!isConfirmed && (
+              <div className="text-xs text-green-600">
+                (Real-time)
+              </div>
+            )}
+          </div>
+        );
+      }
+    },
+    {
+      title: purchaseOrder?.purchaseOrderStatus === 'confirmed' ? 'Warehouse Stock (Then)' : 'Warehouse Stock (Now)',
+      key: 'warehouseStock',
+      align: 'right' as const,
+      render: (_: any, record: any) => {
+        const isConfirmed = purchaseOrder?.purchaseOrderStatus === 'confirmed';
+        const stockValue = isConfirmed ? 
+          (record.warehouseStockAtConfirmation !== undefined ? record.warehouseStockAtConfirmation : record.warehouseStock) : 
+          record.warehouseStock;
+        
+        return (
+          <div>
+            <span className="text-gray-600">
+              {stockValue !== undefined && stockValue !== null ? stockValue.toLocaleString() : '-'}
+            </span>
+            {isConfirmed && (
+              <div className="text-xs text-gray-500">
+                (At confirmation)
+              </div>
+            )}
+            {!isConfirmed && (
+              <div className="text-xs text-green-600">
+                (Real-time)
+              </div>
+            )}
+          </div>
+        );
+      }
+    },
+    {
       title: 'Quantity Ordered',
       dataIndex: 'quantityOrdered',
       key: 'quantityOrdered',
       align: 'right' as const
+    },
+    {
+      title: 'Stock After Order',
+      key: 'stockAfterOrder',
+      align: 'right' as const,
+      render: (_: any, record: any) => {
+        const isConfirmed = purchaseOrder?.purchaseOrderStatus === 'confirmed';
+        const currentBinStock = isConfirmed ? 
+          (record.stockAtConfirmation !== undefined ? record.stockAtConfirmation : record.currentStock) : 
+          record.currentStock;
+        const newStock = (currentBinStock || 0) + (record.quantityOrdered || 0);
+        
+        return (
+          <div>
+            <span className="text-green-600 font-semibold">
+              {newStock.toLocaleString()}
+            </span>
+            {isConfirmed && (
+              <div className="text-xs text-gray-500">
+                (Expected after receiving)
+              </div>
+            )}
+          </div>
+        );
+      }
     },
     {
       title: 'Unit Price',
@@ -186,27 +274,43 @@ export default function PurchaseOrderDetail() {
           </Descriptions.Item>
           
           {/* Delivery Information */}
-          {purchaseOrder.items && purchaseOrder.items.length > 0 && purchaseOrder.items[0].bin && (
+          {purchaseOrder.items && purchaseOrder.items.length > 0 && (
             <>
-              <Descriptions.Item label="Delivery Warehouse">
-                {purchaseOrder.items[0].bin.warehouse?.name || 
-                 `Warehouse ${purchaseOrder.items[0].bin.warehouseId}`}
+              <Descriptions.Item label="Delivery Warehouses" span={2}>
+                {Array.from(new Set(
+                  purchaseOrder.items
+                    .filter((item: any) => item.bin?.warehouse)
+                    .map((item: any) => item.bin.warehouse.name || `Warehouse ${item.bin.warehouseId}`)
+                )).join(', ') || 'Multiple warehouses'}
               </Descriptions.Item>
-              <Descriptions.Item label="Delivery Bin">
-                {purchaseOrder.items[0].bin.locationCode}
-                {purchaseOrder.items[0].bin.isReceivingBin && 
-                  <Tag color="green" className="ml-2">Receiving Bin</Tag>
+              {/* <Descriptions.Item label="Total Bins Used" span={2}>
+                {purchaseOrder.items.length} bin location(s)
+                {purchaseOrder.items.some((item: any) => item.bin?.isReceivingBin) && 
+                  <Tag color="green" className="ml-2">Contains Receiving Bins</Tag>
                 }
-              </Descriptions.Item>
-              <Descriptions.Item label="Bin Description" span={2}>
-                {purchaseOrder.items[0].bin.description || '-'}
-              </Descriptions.Item>
+              </Descriptions.Item> */}
             </>
           )}
         </Descriptions>
       </Card>
 
       <Card title="Order Items">
+        {/* Stock Information Notice */}
+        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+          <div className="text-sm">
+            <strong>📊 Stock Information:</strong>
+            {purchaseOrder.purchaseOrderStatus === 'confirmed' ? (
+              <span className="text-blue-700">
+                {" "}Stock values shown are <strong>snapshots from confirmation time</strong> ({purchaseOrder.confirmedAt ? new Date(purchaseOrder.confirmedAt).toLocaleString() : 'N/A'})
+              </span>
+            ) : (
+              <span className="text-green-700">
+                {" "}Stock values shown are <strong>real-time current stock levels</strong>
+              </span>
+            )}
+          </div>
+        </div>
+
         <Table
           dataSource={purchaseOrder.items || []}
           columns={itemColumns}
@@ -214,7 +318,7 @@ export default function PurchaseOrderDetail() {
           pagination={false}
           summary={() => (
             <Table.Summary.Row>
-              <Table.Summary.Cell index={0} colSpan={4}>
+              <Table.Summary.Cell index={0} colSpan={7}>
                 <strong>Total Amount</strong>
               </Table.Summary.Cell>
               <Table.Summary.Cell index={1}>

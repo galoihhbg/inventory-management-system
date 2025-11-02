@@ -7,16 +7,16 @@ const columns: TableColumn<Partner>[] = [
   { title: 'ID', dataIndex: 'id', key: 'id', width: 80 },
   { title: 'Code', dataIndex: 'code', key: 'code' },
   { title: 'Name', dataIndex: 'name', key: 'name' },
-  { title: 'Type', dataIndex: 'type', key: 'type' },
-  { title: 'Phone', dataIndex: 'phone', key: 'phone' },
-  { title: 'Email', dataIndex: 'email', key: 'email' },
+  { title: 'Address', dataIndex: 'address', key: 'address' },
+  { title: 'Phone', dataIndex: 'phoneNumber', key: 'phone' },
+  // { title: 'Email', dataIndex: 'email', key: 'email' },
   {
     title: 'Status',
-    dataIndex: 'isActive',
-    key: 'isActive',
+    dataIndex: 'status',
+    key: 'status',
     render: (value: unknown, record: Partner) => (
-      <Tag color={record.isActive ? 'green' : 'red'}>
-        {record.isActive ? 'Active' : 'Inactive'}
+      <Tag color={record.status === '1' ? 'green' : 'red'}>
+        {record.status === '1' ? 'Active' : 'Inactive'}
       </Tag>
     )
   }

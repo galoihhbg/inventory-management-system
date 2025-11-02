@@ -88,8 +88,8 @@ export default function PurchaseOrdersList() {
             placeholder="Filter by status" 
             style={{ width: 150 }} 
             allowClear 
-            onChange={(v) => setFilter('status', v)}
-            value={filters.status}
+            onChange={(v) => setFilter('purchaseOrderStatus', v)}
+            value={filters.purchaseOrderStatus}
           >
             <Option value="draft">Draft</Option>
             <Option value="confirmed">Confirmed</Option>

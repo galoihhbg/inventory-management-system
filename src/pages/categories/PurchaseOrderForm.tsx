@@ -11,9 +11,12 @@ type OrderItem = {
   key: string;
   itemId: number;
   itemName?: string;
+  binId: number;
+  binCode?: string;
   quantityOrdered: number;
   unitPrice: number;
   currentStock?: number;
+  warehouseStock?: number;
   newStock?: number;
 };
 
@@ -21,11 +24,13 @@ export default function PurchaseOrderForm() {
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const [items, setItems] = useState<OrderItem[]>([]);
+  const [selectedWarehouseId, setSelectedWarehouseId] = useState<number | undefined>(undefined);
   const [selectedBinId, setSelectedBinId] = useState<number | undefined>(undefined);
   const [selectedItemId, setSelectedItemId] = useState<number | undefined>(undefined);
   const [quantity, setQuantity] = useState<number>(1);
   const [unitPrice, setUnitPrice] = useState<number>(0);
   const [currentItemStock, setCurrentItemStock] = useState<number>(0);
+  const [warehouseStock, setWarehouseStock] = useState<number>(0);
 
   const { data: partnersData, isLoading: partnersLoading } = useEntityList<any>('/partners', { limit: 200 });
   const partners = useMemo(() => partnersData?.data || [], [partnersData]);
@@ -33,42 +38,66 @@ export default function PurchaseOrderForm() {
   const { data: itemsData, isLoading: itemsLoading } = useEntityList<any>('/items', { limit: 200 });
   const availableItems = useMemo(() => itemsData?.data || [], [itemsData]);
 
-  const { data: binsData, isLoading: binsLoading } = useEntityList<any>('/bins', { limit: 200 });
-  const availableBins = useMemo(() => binsData?.data || [], [binsData]);
+  const { data: warehousesData, isLoading: warehousesLoading } = useEntityList<any>('/warehouses', { limit: 200 });
+  const availableWarehouses = useMemo(() => warehousesData?.data || [], [warehousesData]);
 
-  // Fetch current stock for selected item
-  const fetchItemStock = async (itemId: number) => {
+  const { data: binsData, isLoading: binsLoading } = useEntityList<any>('/bins', { 
+    limit: 200,
+    warehouseId: selectedWarehouseId
+  });
+  const availableBins = useMemo(() => {
+    if (!selectedWarehouseId) return [];
+    return binsData?.data?.filter((bin: any) => bin.warehouseId === selectedWarehouseId) || [];
+  }, [binsData, selectedWarehouseId]);
+
+  // Fetch current stock for selected item and bin
+  const fetchItemBinStock = async (itemId: number, binId: number) => {
     try {
-      const res = await client.get(`/inventory-summary/item/${itemId}`);
+      // Get inventory stock for specific item and bin
+      const res = await client.get(`/inventory-stock/filter?itemId=${itemId}&binId=${binId}`);
       const stockData = res.data?.data || res.data;
-      setCurrentItemStock(stockData?.currentStock || 0);
+      const currentStock = stockData?.reduce((acc: number, curr: any) => acc + curr.quantity, 0) || 0;
+      setCurrentItemStock(currentStock);
+
+      // Get warehouse stock for the item
+      const warehouseRes = await client.get(`/inventory-summary/item/${itemId}?warehouseId=${selectedWarehouseId}`);
+      const warehouseStockData = warehouseRes.data?.data || warehouseRes.data;
+      setWarehouseStock((warehouseStockData?.currentStock || 0) + (warehouseStockData?.pendingIn || 0));
     } catch (err) {
       setCurrentItemStock(0);
+      setWarehouseStock(0);
     }
   };
 
   const handleAddItem = async () => {
-    if (!selectedItemId || quantity <= 0 || unitPrice < 0) {
-      notification.warning({ message: 'Please select an item, quantity, and unit price' });
+    if (!selectedItemId || !selectedBinId || quantity <= 0 || unitPrice < 0) {
+      notification.warning({ message: 'Please select an item, bin, quantity, and unit price' });
       return;
     }
 
     const item = availableItems.find((i: any) => i.id === selectedItemId);
+    const bin = availableBins.find((b: any) => b.id === selectedBinId);
+    
     const newItem: OrderItem = {
-      key: `${selectedItemId}-${Date.now()}`,
+      key: `${selectedItemId}-${selectedBinId}-${Date.now()}`,
       itemId: selectedItemId,
+      binId: selectedBinId,
       itemName: item?.name || `Item ${selectedItemId}`,
+      binCode: bin?.code || bin?.locationCode || `Bin ${selectedBinId}`,
       quantityOrdered: quantity,
       unitPrice: unitPrice,
       currentStock: currentItemStock,
+      warehouseStock: warehouseStock,
       newStock: currentItemStock + quantity
     };
 
     setItems([...items, newItem]);
     setSelectedItemId(undefined);
+    setSelectedBinId(undefined);
     setQuantity(1);
     setUnitPrice(0);
     setCurrentItemStock(0);
+    setWarehouseStock(0);
   };
 
   const handleRemoveItem = (key: string) => {
@@ -81,8 +110,8 @@ export default function PurchaseOrderForm() {
       return;
     }
 
-    if (!selectedBinId) {
-      notification.error({ message: 'Please select a bin location for this order' });
+    if (!selectedWarehouseId) {
+      notification.error({ message: 'Please select a warehouse for this order' });
       return;
     }
 
@@ -93,7 +122,7 @@ export default function PurchaseOrderForm() {
           itemId: item.itemId,
           quantityOrdered: item.quantityOrdered,
           unitPrice: item.unitPrice,
-          binId: selectedBinId
+          binId: item.binId
         }))
       };
 
@@ -115,9 +144,21 @@ export default function PurchaseOrderForm() {
       key: 'itemName'
     },
     {
-      title: 'Current Stock',
+      title: 'Bin',
+      dataIndex: 'binCode',
+      key: 'binCode'
+    },
+    {
+      title: 'Current Stock (Bin)',
       dataIndex: 'currentStock',
       key: 'currentStock',
+      align: 'right' as const,
+      render: (stock: number) => stock?.toLocaleString() || 0
+    },
+    {
+      title: 'Warehouse Stock',
+      dataIndex: 'warehouseStock',
+      key: 'warehouseStock',
       align: 'right' as const,
       render: (stock: number) => stock?.toLocaleString() || 0
     },
@@ -128,7 +169,7 @@ export default function PurchaseOrderForm() {
       align: 'right' as const
     },
     {
-      title: 'New Stock',
+      title: 'New Stock (Bin)',
       dataIndex: 'newStock',
       key: 'newStock',
       align: 'right' as const,
@@ -186,31 +227,31 @@ export default function PurchaseOrderForm() {
           </Select>
         </Form.Item>
 
-        {/* Bin Selection - Once for entire order */}
+        {/* Warehouse Selection - First step */}
         <Card title="Delivery Information" className="mb-4">
           <Form.Item
-            name="binId"
-            label="Delivery Bin Location"
-            rules={[{ required: true, message: 'Please select delivery bin location' }]}
+            name="warehouseId"
+            label="Warehouse"
+            rules={[{ required: true, message: 'Please select warehouse' }]}
           >
             <Select
-              placeholder="Select bin location for this order"
-              value={selectedBinId}
+              placeholder="Select warehouse for this order"
+              value={selectedWarehouseId}
               onChange={(value) => {
-                setSelectedBinId(value);
-                form.setFieldsValue({ binId: value });
+                setSelectedWarehouseId(value);
+                setSelectedBinId(undefined); // Reset bin selection
+                form.setFieldsValue({ warehouseId: value });
               }}
               style={{ width: '100%' }}
-              loading={binsLoading}
+              loading={warehousesLoading}
               showSearch
               filterOption={(input, option: any) =>
                 option?.children?.toLowerCase().includes(input.toLowerCase())
               }
             >
-              {availableBins.map((bin: any) => (
-                <Option key={bin.id} value={bin.id}>
-                  {bin.locationCode} - {bin.description || 'No description'}
-                  {bin.isReceivingBin && <span className="text-green-600 ml-2">(Receiving)</span>}
+              {availableWarehouses.map((warehouse: any) => (
+                <Option key={warehouse.id} value={warehouse.id}>
+                  {warehouse.code || `Warehouse ${warehouse.id}`}
                 </Option>
               ))}
             </Select>
@@ -219,21 +260,25 @@ export default function PurchaseOrderForm() {
 
         <Card title="Order Items" className="mb-4">
           <Space direction="vertical" style={{ width: '100%' }}>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-3 items-start">
               <div className="min-h-[80px]">
                 <label className="block mb-1 text-sm">Item</label>
                 <Select
+                  allowClear
                   placeholder="Select item"
                   value={selectedItemId}
                   onChange={(itemId) => {
                     setSelectedItemId(itemId);
-                    if (itemId) {
-                      fetchItemStock(itemId);
+                    setCurrentItemStock(0);
+                    setWarehouseStock(0);
+                    if (itemId && selectedBinId) {
+                      fetchItemBinStock(itemId, selectedBinId);
                     }
                   }}
                   style={{ width: '100%' }}
                   loading={itemsLoading}
                   showSearch
+                  disabled={!selectedWarehouseId}
                   filterOption={(input, option: any) =>
                     option?.children?.toLowerCase().includes(input.toLowerCase())
                   }
@@ -244,9 +289,42 @@ export default function PurchaseOrderForm() {
                     </Option>
                   ))}
                 </Select>
-                {selectedItemId && (
+              </div>
+
+              <div className="min-h-[80px]">
+                <label className="block mb-1 text-sm">Bin Location</label>
+                <Select
+                  allowClear
+                  placeholder="Select bin"
+                  value={selectedBinId}
+                  onChange={(binId) => {
+                    setSelectedBinId(binId);
+                    setCurrentItemStock(0);
+                    setWarehouseStock(0);
+                    if (selectedItemId && binId) {
+                      fetchItemBinStock(selectedItemId, binId);
+                    }
+                  }}
+                  style={{ width: '100%' }}
+                  loading={binsLoading}
+                  showSearch
+                  disabled={!selectedWarehouseId}
+                  filterOption={(input, option: any) =>
+                    option?.children?.toLowerCase().includes(input.toLowerCase())
+                  }
+                >
+                  {availableBins.map((bin: any) => (
+                    <Option key={bin.id} value={bin.id}>
+                      {bin.code || bin.locationCode} 
+                      {bin.isReceivingBin && <span className="text-green-600 ml-1">(R)</span>}
+                    </Option>
+                  ))}
+                </Select>
+                {selectedItemId && selectedBinId && (
                   <div className="text-sm text-gray-600 mt-1">
-                    Current Stock: <span className="font-semibold">{currentItemStock.toLocaleString()}</span>
+                    Bin Stock: <span className="font-semibold">{currentItemStock.toLocaleString()}</span>
+                    <br />
+                    Warehouse: <span className="font-semibold">{warehouseStock.toLocaleString()}</span>
                   </div>
                 )}
               </div>
@@ -259,9 +337,9 @@ export default function PurchaseOrderForm() {
                   onChange={(val) => setQuantity(val || 1)}
                   style={{ width: '100%' }}
                 />
-                {selectedItemId && quantity > 0 && (
+                {selectedItemId && selectedBinId && quantity > 0 && (
                   <div className="text-sm text-green-600 mt-1">
-                    New Stock: <span className="font-semibold">{(currentItemStock + quantity).toLocaleString()}</span>
+                    New Bin Stock: <span className="font-semibold">{(currentItemStock + quantity).toLocaleString()}</span>
                   </div>
                 )}
               </div>
@@ -284,16 +362,16 @@ export default function PurchaseOrderForm() {
                   icon={<PlusOutlined />}
                   onClick={handleAddItem}
                   style={{ width: '100%' }}
-                  disabled={!selectedBinId}
+                  disabled={!selectedWarehouseId || !selectedItemId || !selectedBinId}
                 >
                   Add Item
                 </Button>
               </div>
             </div>
 
-            {!selectedBinId && (
+            {!selectedWarehouseId && (
               <div className="text-orange-600 text-sm">
-                Please select a bin location above before adding items
+                Please select a warehouse above before adding items
               </div>
             )}
 
