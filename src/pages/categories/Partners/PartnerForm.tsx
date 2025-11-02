@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Card, Form, Input, Button, notification } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useEntityCRUD } from '../../api/hooks';
+import { useEntityCRUD } from '../../../api/hooks';
 
 export default function PartnerForm() {
   const { id } = useParams();

@@ -1,8 +1,8 @@
 import React from 'react';
 import { Tag } from 'antd';
 import { useTranslation } from 'react-i18next';
-import GenericList from './GenericListFactory';
-import { Warehouse, TableColumn } from '../../types';
+import GenericList from '../shared/GenericListFactory';
+import { Warehouse, TableColumn } from '../../../types';
 
 export default function WarehousesList() {
   const { t } = useTranslation();

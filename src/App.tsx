@@ -5,40 +5,40 @@ import TopBar from './components/TopBar';
 import Sidebar from './components/Sidebar';
 import LoginPage from './pages/Login';
 import DashboardPage from './pages/Dashboard';
-import WarehousesList from './pages/categories/WarehousesList';
-import WarehouseForm from './pages/categories/WarehouseForm';
+import WarehousesList from './pages/categories/Warehouses/WarehousesList';
+import WarehouseForm from './pages/categories/Warehouses/WarehouseForm';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Unauthorized from './pages/Unauthorized';
 import DisplaySettings from './pages/Settings/DisplaySettings';
-import UsersList from './pages/categories/UsersList';
-import RolesList from './pages/categories/RolesList';
-import ItemsList from './pages/categories/ItemsList';
-import PartnersList from './pages/categories/PartnersList';
-import BinsList from './pages/categories/BinsList';
-import BaseUnitsList from './pages/categories/BaseUnitsList';
+import UsersList from './pages/categories/Users/UsersList';
+import RolesList from './pages/categories/Roles/RolesList';
+import ItemsList from './pages/categories/Items/ItemsList';
+import PartnersList from './pages/categories/Partners/PartnersList';
+import BinsList from './pages/categories/Bins/BinsList';
+import BaseUnitsList from './pages/categories/BaseUnits/BaseUnitsList';
 
 // New forms & role management
-import UserForm from './pages/categories/UserForm';
-import RoleForm from './pages/categories/RoleForm';
-import ItemForm from './pages/categories/ItemForm';
-import PartnerForm from './pages/categories/PartnerForm';
-import BinForm from './pages/categories/BinForm';
-import BaseUnitForm from './pages/categories/BaseUnitForm';
+import UserForm from './pages/categories/Users/UserForm';
+import RoleForm from './pages/categories/Roles/RoleForm';
+import ItemForm from './pages/categories/Items/ItemForm';
+import PartnerForm from './pages/categories/Partners/PartnerForm';
+import BinForm from './pages/categories/Bins/BinForm';
+import BaseUnitForm from './pages/categories/BaseUnits/BaseUnitForm';
 import RoleAssign from './pages/RoleManagement/RoleAssign';
 import I18nDemo from './pages/I18nDemo';
 
 // Purchase Orders
-import PurchaseOrdersList from './pages/categories/PurchaseOrdersList';
-import PurchaseOrderForm from './pages/categories/PurchaseOrderForm';
-import PurchaseOrderDetail from './pages/categories/PurchaseOrderDetail';
+import PurchaseOrdersList from './pages/categories/PurchaseOrders/PurchaseOrdersList';
+import PurchaseOrderForm from './pages/categories/PurchaseOrders/PurchaseOrderForm';
+import PurchaseOrderDetail from './pages/categories/PurchaseOrders/PurchaseOrderDetail';
 
 // Inventory Stock
-import InventoryStockList from './pages/categories/InventoryStockList';
-import InventoryStockFilterList from './pages/categories/InventoryStockFilterList';
+import InventoryStockList from './pages/categories/InventoryStock/InventoryStockList';
+import InventoryStockFilterList from './pages/categories/InventoryStock/InventoryStockFilterList';
 
 // Inventory Summary
-import InventorySummaryList from './pages/categories/InventorySummaryList';
+import InventorySummaryList from './pages/categories/InventorySummary/InventorySummaryList';
 
 const { Header, Sider, Content } = Layout;
 

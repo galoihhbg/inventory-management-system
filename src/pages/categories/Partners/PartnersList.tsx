@@ -1,6 +1,6 @@
 import React from 'react';
-import GenericList from './GenericListFactory';
-import { Partner, TableColumn } from '../../types';
+import GenericList from '../shared/GenericListFactory';
+import { Partner, TableColumn } from '../../../types';
 import { Tag } from 'antd';
 
 const columns: TableColumn<Partner>[] = [

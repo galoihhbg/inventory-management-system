@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { Card, Form, Input, Button, notification, Select, Spin } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useEntityCRUD, useEntityList } from '../../api/hooks';
+import { useEntityCRUD, useEntityList } from '../../../api/hooks';
 
 const { Option } = Select;
 

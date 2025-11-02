@@ -2,9 +2,9 @@ import React from 'react';
 import { Button, Table, Space, Input, Select, Tag } from 'antd';
 import { PlusOutlined, EyeOutlined, ReloadOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
-import { useFilteredList } from '../../api/hooks';
-import { PurchaseOrderFilter } from '../../types';
-import Pagination from '../../components/Pagination';
+import { useFilteredList } from '../../../api/hooks';
+import { PurchaseOrderFilter } from '../../../types';
+import Pagination from '../../../components/Pagination';
 
 const { Option } = Select;
 

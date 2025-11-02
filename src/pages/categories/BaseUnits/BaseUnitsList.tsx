@@ -1,5 +1,5 @@
 import React from 'react';
-import GenericList from './GenericListFactory';
+import GenericList from '../shared/GenericListFactory';
 
 const columns = [
   { title: 'ID', dataIndex: 'id', key: 'id', width: 80 },
