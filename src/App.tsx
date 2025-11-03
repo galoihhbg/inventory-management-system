@@ -33,6 +33,11 @@ import PurchaseOrdersList from './pages/categories/PurchaseOrders/PurchaseOrders
 import PurchaseOrderForm from './pages/categories/PurchaseOrders/PurchaseOrderForm';
 import PurchaseOrderDetail from './pages/categories/PurchaseOrders/PurchaseOrderDetail';
 
+// Sales Orders
+import SalesOrdersList from './pages/categories/SalesOrders/SalesOrdersList';
+import SalesOrderForm from './pages/categories/SalesOrders/SalesOrderForm';
+import SalesOrderDetail from './pages/categories/SalesOrders/SalesOrderDetail';
+
 // Inventory Stock
 import InventoryStockList from './pages/categories/InventoryStock/InventoryStockList';
 import InventoryStockFilterList from './pages/categories/InventoryStock/InventoryStockFilterList';
@@ -105,6 +110,11 @@ function App() {
               <Route path="/purchase-orders" element={<ProtectedRoute roles={['admin','manager']}><PurchaseOrdersList /></ProtectedRoute>} />
               <Route path="/purchase-orders/new" element={<ProtectedRoute roles={['admin','manager']}><PurchaseOrderForm /></ProtectedRoute>} />
               <Route path="/purchase-orders/:id" element={<ProtectedRoute roles={['admin','manager']}><PurchaseOrderDetail /></ProtectedRoute>} />
+
+              {/* Sales Orders */}
+              <Route path="/sales-orders" element={<ProtectedRoute roles={['admin','manager']}><SalesOrdersList /></ProtectedRoute>} />
+              <Route path="/sales-orders/new" element={<ProtectedRoute roles={['admin','manager']}><SalesOrderForm /></ProtectedRoute>} />
+              <Route path="/sales-orders/:id" element={<ProtectedRoute roles={['admin','manager']}><SalesOrderDetail /></ProtectedRoute>} />
 
               {/* Inventory Stock */}
               <Route path="/inventory-stock" element={<ProtectedRoute roles={['admin','manager','user']}><InventoryStockList /></ProtectedRoute>} />
