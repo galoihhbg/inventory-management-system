@@ -20,6 +20,7 @@ const ITEMS: MenuItem[] = [
   { key: 'inventoryStock', labelKey: 'navigation.inventory', path: '/inventory-stock', icon: <StockOutlined /> },
   { key: 'inventorySummary', labelKey: 'navigation.inventory', path: '/inventory-summary', icon: <StockOutlined /> },
   { key: 'purchaseOrders', labelKey: 'navigation.purchaseOrders', path: '/purchase-orders', icon: <ShoppingCartOutlined /> },
+  { key: 'salesOrders', labelKey: 'navigation.salesOrders', path: '/sales-orders', icon: <ShoppingCartOutlined /> },
   { key: 'users', labelKey: 'navigation.users', path: '/users', icon: <TeamOutlined /> },
   { key: 'roles', labelKey: 'navigation.roles', path: '/roles', icon: <UnlockOutlined /> },
   { key: 'partners', labelKey: 'navigation.partners', path: '/partners', icon: <DatabaseOutlined /> },

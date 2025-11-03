@@ -8,6 +8,7 @@ export const DEFAULT_PERMISSIONS: Record<string, string[]> = {
   bins: ['admin', 'manager'],
   baseUnits: ['admin', 'manager'],
   purchaseOrders: ['admin', 'manager'],
+  salesOrders: ['admin', 'manager'],
   inventoryStock: ['admin', 'manager', 'user'],
   inventorySummary: ['admin', 'manager', 'user'],
   settings: ['admin']

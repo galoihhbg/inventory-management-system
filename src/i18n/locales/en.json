@@ -63,6 +63,7 @@
     "items": "Items",
     "partners": "Partners",
     "purchaseOrders": "Purchase Orders",
+    "salesOrders": "Sales Orders",
     "users": "Users",
     "roles": "Roles",
     "settings": "Settings",

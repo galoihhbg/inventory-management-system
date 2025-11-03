@@ -119,6 +119,43 @@ export interface PurchaseOrderItem {
   updatedAt: string;
 }
 
+export interface SalesOrder {
+  id: number;
+  code: string;
+  creatorId: number;
+  creator?: User;
+  partnerId?: number;
+  partner?: Partner;
+  warehouseId: number;
+  warehouse?: Warehouse;
+  salesOrderStatus: 'draft' | 'confirmed';
+  orderDate: string;
+  description?: string;
+  confirmedAt?: string;
+  items: SalesOrderItem[];
+  createdAt: string;
+  updatedAt: string;
+  status?: string;
+}
+
+export interface SalesOrderItem {
+  id: number;
+  salesOrderId: number;
+  itemId: number;
+  item?: Item;
+  quantityOrdered: number;
+  sellingPrice: number;
+  costPrice: number;
+  autoCalculateCost: boolean;
+  binId: number;
+  bin?: Bin;
+  currentStock?: number;           // Current quantity in specific bin (real-time for draft, snapshot for confirmed)
+  remainingQuantity?: number;      // Remaining quantity after order
+  createdAt: string;
+  updatedAt: string;
+  status?: string;
+}
+
 export interface InventoryStock {
   id: number;
   itemId: number;
@@ -238,6 +275,24 @@ export interface PurchaseOrderItemFormData {
   warehouseStock?: number;     // Warehouse stock info
 }
 
+export interface SalesOrderFormData {
+  partnerId?: number;
+  warehouseId: number;
+  description?: string;
+  items: SalesOrderItemFormData[];
+}
+
+export interface SalesOrderItemFormData {
+  itemId: number;
+  quantityOrdered: number;
+  sellingPrice: number;
+  costPrice?: number;
+  autoCalculateCost: boolean;
+  binId: number;
+  currentStock?: number;
+  remainingQuantity?: number;
+}
+
 // Filter types
 export interface BaseFilter {
   page?: number;
@@ -270,6 +325,12 @@ export interface PartnerFilter extends BaseFilter {
 
 export interface PurchaseOrderFilter extends BaseFilter {
   purchaseOrderStatus?: 'draft' | 'pending' | 'approved' | 'received' | 'cancelled';
+  partnerId?: number;
+}
+
+export interface SalesOrderFilter extends BaseFilter {
+  salesOrderStatus?: 'draft' | 'confirmed';
+  warehouseId?: number;
   partnerId?: number;
 }
 
