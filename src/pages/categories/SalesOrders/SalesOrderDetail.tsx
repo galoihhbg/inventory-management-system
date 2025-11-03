@@ -20,7 +20,7 @@ export default function SalesOrderDetail() {
     try {
       setLoading(true);
       const response = await client.get(`/sales-orders/${id}`);
-      const data = response.data?.salesOrder || response.data;
+      const data = response.data?.data || response.data;
       setSalesOrder(data);
     } catch (err: any) {
       notification.error({ 

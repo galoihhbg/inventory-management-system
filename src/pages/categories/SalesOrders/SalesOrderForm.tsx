@@ -56,10 +56,10 @@ export default function SalesOrderForm() {
   // Fetch current stock for selected item and bin
   const fetchItemBinStock = async (itemId: number, binId: number) => {
     try {
-      // Get inventory summary for specific item and bin
-      const res = await client.get(`/inventory-summary/item/${itemId}?binId=${binId}`);
+      // Get inventory stock for specific item and bin
+      const res = await client.get(`/inventory-stock/filter?itemId=${itemId}&binId=${binId}`);
       const stockData = res.data?.data || res.data;
-      const currentStock = stockData?.currentStock || 0;
+      const currentStock = stockData?.reduce((acc: number, curr: any) => acc + curr.quantity, 0) || 0;
       setCurrentItemStock(currentStock);
     } catch (err) {
       setCurrentItemStock(0);
@@ -227,7 +227,7 @@ export default function SalesOrderForm() {
               option?.children?.toLowerCase().includes(input.toLowerCase())
             }
           >
-            {partners.filter((p: any) => p.type === 'customer' || p.type === 'both').map((p: any) => (
+            {partners.map((p: any) => (
               <Option key={p.id} value={p.id}>
                 {p.code ? `${p.code} - ${p.name}` : p.name || `Partner ${p.id}`}
               </Option>
