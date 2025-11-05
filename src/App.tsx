@@ -45,6 +45,11 @@ import InventoryStockFilterList from './pages/categories/InventoryStock/Inventor
 // Inventory Summary
 import InventorySummaryList from './pages/categories/InventorySummary/InventorySummaryList';
 
+// Inventory Checks
+import InventoryChecksList from './pages/categories/InventoryChecks/InventoryChecksList';
+import InventoryCheckForm from './pages/categories/InventoryChecks/InventoryCheckForm';
+import InventoryCheckDetail from './pages/categories/InventoryChecks/InventoryCheckDetail';
+
 const { Header, Sider, Content } = Layout;
 
 function App() {
@@ -122,6 +127,12 @@ function App() {
 
               {/* Inventory Summary */}
               <Route path="/inventory-summary" element={<ProtectedRoute roles={['admin','manager','user']}><InventorySummaryList /></ProtectedRoute>} />
+
+              {/* Inventory Checks */}
+              <Route path="/inventory-checks" element={<ProtectedRoute roles={['admin','manager']}><InventoryChecksList /></ProtectedRoute>} />
+              <Route path="/inventory-checks/new" element={<ProtectedRoute roles={['admin','manager']}><InventoryCheckForm /></ProtectedRoute>} />
+              <Route path="/inventory-checks/:id" element={<ProtectedRoute roles={['admin','manager']}><InventoryCheckDetail /></ProtectedRoute>} />
+              <Route path="/inventory-checks/:id/edit" element={<ProtectedRoute roles={['admin','manager']}><InventoryCheckForm /></ProtectedRoute>} />
 
               {/* Settings */}
               <Route path="/settings/display" element={<ProtectedRoute roles="admin"><DisplaySettings /></ProtectedRoute>} />

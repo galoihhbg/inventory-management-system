@@ -170,6 +170,39 @@ export interface InventoryStock {
   lastUpdated: string;
 }
 
+export interface InventoryCheck {
+  id: number;
+  code: string;
+  fromDate: string;
+  toDate: string;
+  warehouseId: number;
+  warehouse?: Warehouse;
+  checkerId: number;
+  checker?: User;
+  description?: string;
+  checkStatus: 'draft' | 'completed' | 'processed';
+  details: InventoryCheckDetail[];
+  createdAt: string;
+  updatedAt: string;
+  status?: string;
+}
+
+export interface InventoryCheckDetail {
+  id: number;
+  inventoryCheckId: number;
+  itemId: number;
+  item?: Item;
+  binId: number;
+  bin?: Bin;
+  actualQuantity: number;
+  bookQuantity?: number | null;
+  discrepancy?: number | null;
+  discrepancyHandled: boolean;
+  createdAt: string;
+  updatedAt: string;
+  status?: string;
+}
+
 // API Response types
 export interface ListResponse<T> {
   data: T[];
@@ -293,6 +326,30 @@ export interface SalesOrderItemFormData {
   remainingQuantity?: number;
 }
 
+export interface InventoryCheckFormData {
+  fromDate: string;
+  toDate: string;
+  warehouseId: number;
+  checkerId: number;
+  description?: string;
+  details: InventoryCheckDetailFormData[];
+}
+
+export interface InventoryCheckDetailFormData {
+  itemId: number;
+  binId: number;
+  actualQuantity: number;
+}
+
+export interface ProcessDiscrepancyFormData {
+  detailId: number;
+  action: 'ignore' | 'purchase_order' | 'sales_order';
+  createOrderRequest?: {
+    partnerId?: number;
+  };
+}
+
+
 // Filter types
 export interface BaseFilter {
   page?: number;
@@ -340,6 +397,13 @@ export interface InventoryStockFilter extends BaseFilter {
   binId?: number;
   hasStock?: boolean;
 }
+
+export interface InventoryCheckFilter extends BaseFilter {
+  checkStatus?: 'draft' | 'completed' | 'processed';
+  warehouseId?: number;
+  checkerId?: number;
+}
+
 
 // Table column props
 export interface TableColumn<T = unknown> {

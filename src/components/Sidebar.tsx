@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Menu } from 'antd';
 import { Link, useLocation } from 'react-router-dom';
-import { HomeOutlined, DatabaseOutlined, AppstoreOutlined, TeamOutlined, SettingOutlined, UnlockOutlined, ShoppingCartOutlined, StockOutlined } from '@ant-design/icons';
+import { HomeOutlined, DatabaseOutlined, AppstoreOutlined, TeamOutlined, SettingOutlined, UnlockOutlined, ShoppingCartOutlined, StockOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { DEFAULT_PERMISSIONS, DISPLAY_CONFIG_KEY } from '../config/permissions';
@@ -19,6 +19,7 @@ const ITEMS: MenuItem[] = [
   { key: 'items', labelKey: 'navigation.items', path: '/items', icon: <AppstoreOutlined /> },
   { key: 'inventoryStock', labelKey: 'navigation.inventory', path: '/inventory-stock', icon: <StockOutlined /> },
   { key: 'inventorySummary', labelKey: 'navigation.inventory', path: '/inventory-summary', icon: <StockOutlined /> },
+  { key: 'inventoryChecks', labelKey: 'navigation.inventoryChecks', path: '/inventory-checks', icon: <CheckCircleOutlined /> },
   { key: 'purchaseOrders', labelKey: 'navigation.purchaseOrders', path: '/purchase-orders', icon: <ShoppingCartOutlined /> },
   { key: 'salesOrders', labelKey: 'navigation.salesOrders', path: '/sales-orders', icon: <ShoppingCartOutlined /> },
   { key: 'users', labelKey: 'navigation.users', path: '/users', icon: <TeamOutlined /> },
