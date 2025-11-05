@@ -271,7 +271,7 @@ export default function InventoryCheckDetail() {
 
       <Modal
         title={t('inventoryChecks.processDiscrepancy')}
-        visible={isModalVisible}
+        open={isModalVisible}
         onOk={handleModalOk}
         onCancel={handleModalCancel}
         okText={t('common.confirm')}
