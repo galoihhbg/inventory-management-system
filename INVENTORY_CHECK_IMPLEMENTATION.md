@@ -49,6 +49,10 @@ Added translations in:
 
 ### Workflow
 1. **Draft**: Create inventory check with physical counts
+   - Select warehouse and item
+   - System automatically fetches all bins with stock for that item in the warehouse
+   - User enters actual quantity for each bin
+   - Checker is automatically set from authenticated user (no manual selection needed)
 2. **Complete**: Calculate book quantities and discrepancies
 3. **Process**: Handle each discrepancy item
 
@@ -64,8 +68,12 @@ Added translations in:
 ### Form Features
 - Date range picker for check period
 - Warehouse selection
-- Checker (user) selection
-- Dynamic item/bin selection based on selected warehouse
+- **Automatic checker assignment** from authenticated user (no manual selection)
+- Item selection (filtered by warehouse)
+- **Automatic bin listing** - displays all bins with stock for selected item in warehouse
+- Shows current stock quantity for each bin from inventory_stock
+- Inline actual quantity entry for each bin
+- Batch add all bins for an item to check details
 - Add/remove detail lines
 - Form validation
 - Edit restrictions for non-draft checks
@@ -85,9 +93,9 @@ Added translations in:
 
 The module expects the following backend endpoints:
 - `GET /inventory-checks` - List checks with pagination
-- `POST /inventory-checks` - Create new check
+- `POST /inventory-checks` - Create new check (checker_id from auth token)
 - `GET /inventory-checks/:id` - Get check details
-- `PUT /inventory-checks/:id` - Update check (draft only)
+- `PUT /inventory-checks/:id` - Update check (draft only, checker_id from auth token)
 - `DELETE /inventory-checks/:id` - Delete check (draft only)
 - `POST /inventory-checks/:id/complete` - Complete check
 - `POST /inventory-checks/process-discrepancy` - Process discrepancy
@@ -107,9 +115,12 @@ The implementation has been tested with:
 
 1. Navigate to "Inventory Checks" from the sidebar menu
 2. Click "New Inventory Check" to create a check
-3. Select date range, warehouse, and checker
-4. Add items with bins and actual quantities
-5. Save the draft check
+3. Select date range and warehouse
+4. Select an item - the system will automatically list all bins with stock for that item
+5. Enter actual quantities for each bin (current stock is shown for reference)
+6. Click "Add Item to Batch" to add all bins for the item to the check
+7. Repeat for other items as needed
+8. Save the draft check
 6. Open the check detail page
 7. Click "Complete Check" to calculate discrepancies
 8. For each discrepancy, click "Process Discrepancy" to handle it
@@ -121,4 +132,7 @@ The implementation has been tested with:
 - Only draft checks can be edited or deleted
 - Discrepancies can only be processed after check is completed
 - Each discrepancy can only be processed once
-- The module integrates with warehouses, bins, items, users, and partners
+- The module integrates with warehouses, bins, items, inventory_stock, and partners
+- **Checker is automatically determined from the authenticated user's token** (not manually selected)
+- **Bins are automatically fetched from inventory_stock** based on selected item and warehouse
+- Current stock quantities are displayed for reference when entering actual quantities

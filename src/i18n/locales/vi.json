@@ -207,7 +207,10 @@
     "cannotEditCompleted": "Không thể sửa kiểm kê đã hoàn thành hoặc đã xử lý",
     "cannotDeleteCompleted": "Không thể xóa kiểm kê đã hoàn thành hoặc đã xử lý",
     "item": "Hàng Hóa",
-    "bin": "Vị Trí"
+    "bin": "Vị Trí",
+    "binsWithStock": "Vị trí có tồn kho hiện tại",
+    "addItemToBatch": "Thêm Hàng Hóa vào Lô",
+    "noBinsWithStock": "Không tìm thấy vị trí nào có tồn kho cho hàng hóa này trong kho đã chọn"
   },
   "validation": {
     "required": "{{field}} là bắt buộc",

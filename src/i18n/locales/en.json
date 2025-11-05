@@ -207,7 +207,10 @@
     "cannotEditCompleted": "Cannot edit completed or processed checks",
     "cannotDeleteCompleted": "Cannot delete completed or processed checks",
     "item": "Item",
-    "bin": "Bin"
+    "bin": "Bin",
+    "binsWithStock": "Bins with current stock",
+    "addItemToBatch": "Add Item to Batch",
+    "noBinsWithStock": "No bins with stock found for this item in the selected warehouse"
   },
   "validation": {
     "required": "{{field}} is required",
