@@ -11,6 +11,7 @@ export const DEFAULT_PERMISSIONS: Record<string, string[]> = {
   salesOrders: ['admin', 'manager'],
   inventoryStock: ['admin', 'manager', 'user'],
   inventorySummary: ['admin', 'manager', 'user'],
+  inventoryChecks: ['admin', 'manager'],
   settings: ['admin']
 };
 
