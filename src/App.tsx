@@ -50,6 +50,14 @@ import InventoryChecksList from './pages/categories/InventoryChecks/InventoryChe
 import InventoryCheckForm from './pages/categories/InventoryChecks/InventoryCheckForm';
 import InventoryCheckDetail from './pages/categories/InventoryChecks/InventoryCheckDetail';
 
+// Reports
+import PurchaseOrderReport from './pages/Reports/PurchaseOrderReport';
+import SalesOrderReport from './pages/Reports/SalesOrderReport';
+import InventoryMovementReport from './pages/Reports/InventoryMovementReport';
+import InventoryByLocationReport from './pages/Reports/InventoryByLocationReport';
+import ItemDetailReport from './pages/Reports/ItemDetailReport';
+import InventoryCheckDiscrepancyReport from './pages/Reports/InventoryCheckDiscrepancyReport';
+
 const { Header, Sider, Content } = Layout;
 
 function App() {
@@ -133,6 +141,14 @@ function App() {
               <Route path="/inventory-checks/new" element={<ProtectedRoute roles={['admin','manager']}><InventoryCheckForm /></ProtectedRoute>} />
               <Route path="/inventory-checks/:id" element={<ProtectedRoute roles={['admin','manager']}><InventoryCheckDetail /></ProtectedRoute>} />
               <Route path="/inventory-checks/:id/edit" element={<ProtectedRoute roles={['admin','manager']}><InventoryCheckForm /></ProtectedRoute>} />
+
+              {/* Reports */}
+              <Route path="/reports/purchase-orders" element={<ProtectedRoute roles={['admin','manager','user']}><PurchaseOrderReport /></ProtectedRoute>} />
+              <Route path="/reports/sales-orders" element={<ProtectedRoute roles={['admin','manager','user']}><SalesOrderReport /></ProtectedRoute>} />
+              <Route path="/reports/inventory-movement" element={<ProtectedRoute roles={['admin','manager','user']}><InventoryMovementReport /></ProtectedRoute>} />
+              <Route path="/reports/inventory-by-location" element={<ProtectedRoute roles={['admin','manager','user']}><InventoryByLocationReport /></ProtectedRoute>} />
+              <Route path="/reports/item-detail" element={<ProtectedRoute roles={['admin','manager','user']}><ItemDetailReport /></ProtectedRoute>} />
+              <Route path="/reports/inventory-check-discrepancy" element={<ProtectedRoute roles={['admin','manager','user']}><InventoryCheckDiscrepancyReport /></ProtectedRoute>} />
 
               {/* Settings */}
               <Route path="/settings/display" element={<ProtectedRoute roles="admin"><DisplaySettings /></ProtectedRoute>} />
