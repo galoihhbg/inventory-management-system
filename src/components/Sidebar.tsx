@@ -139,6 +139,25 @@ export default function Sidebar() {
     setCurrentOpenKeys(keys);
   };
 
+  const renderMenuItem = (item: MenuItem) => {
+    if (item.children && item.children.length > 0) {
+      return (
+        <Menu.SubMenu key={item.key} icon={item.icon} title={t(item.labelKey)}>
+          {item.children.map((child) => (
+            <Menu.Item key={child.path} icon={child.icon}>
+              <Link to={child.path!}>{t(child.labelKey)}</Link>
+            </Menu.Item>
+          ))}
+        </Menu.SubMenu>
+      );
+    }
+    return (
+      <Menu.Item key={item.path} icon={item.icon}>
+        <Link to={item.path!}>{t(item.labelKey)}</Link>
+      </Menu.Item>
+    );
+  };
+
   return (
     <div
       style={{

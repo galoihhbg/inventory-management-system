@@ -476,3 +476,86 @@ export interface UserRoleAssignment {
   userId: number;
   roleIds: number[];
 }
+
+// Report types
+export interface ReportFilter extends BaseFilter {
+  fromDate?: string;
+  toDate?: string;
+  warehouseId?: number;
+  warehouseCode?: string;
+  itemId?: number;
+  itemCode?: string;
+  binId?: number;
+  locationCode?: string;
+}
+
+export interface PurchaseOrderReportItem {
+  documentDate: string;
+  documentNumber: string;
+  partnerCode: string;
+  partnerName: string;
+  employeeName: string;
+  quantity: number;
+  totalAmount: number;
+}
+
+export interface SalesOrderReportItem {
+  documentDate: string;
+  documentNumber: string;
+  partnerCode: string;
+  partnerName: string;
+  employeeName: string;
+  quantity: number;
+  totalAmount: number;
+}
+
+export interface InventoryMovementReportItem {
+  itemCode: string;
+  itemName: string;
+  warehouseCode: string;
+  openingQuantity: number;
+  openingValue: number;
+  inboundQuantity: number;
+  inboundValue: number;
+  outboundQuantity: number;
+  outboundValue: number;
+  stockQuantity: number;
+  stockValue: number;
+}
+
+export interface InventoryByLocationReportItem {
+  itemCode: string;
+  itemName: string;
+  warehouseCode: string;
+  locationCode: string;
+  openingQuantity: number;
+  openingValue: number;
+  inboundQuantity: number;
+  inboundValue: number;
+  outboundQuantity: number;
+  outboundValue: number;
+  stockQuantity: number;
+  stockValue: number;
+}
+
+export interface ItemDetailReportItem {
+  documentDate: string;
+  documentNumber: string;
+  description: string;
+  itemCode: string;
+  itemName: string;
+  costPrice: number;
+  inboundQuantity: number;
+  inboundValue: number;
+  outboundQuantity: number;
+  outboundValue: number;
+}
+
+export interface InventoryCheckDiscrepancyReportItem {
+  itemCode: string;
+  itemName: string;
+  warehouseCode: string;
+  locationCode: string;
+  actualQuantity: number;
+  discrepancy: number;
+}
