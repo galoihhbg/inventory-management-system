@@ -48,6 +48,7 @@ import InventorySummaryList from "./pages/categories/InventorySummary/InventoryS
 import InventoryChecksList from "./pages/categories/InventoryChecks/InventoryChecksList";
 import InventoryCheckForm from "./pages/categories/InventoryChecks/InventoryCheckForm";
 import InventoryCheckDetail from "./pages/categories/InventoryChecks/InventoryCheckDetail";
+import { InventoryByLocationReport, InventoryCheckDiscrepancyReport, InventoryMovementReport, ItemDetailReport, PurchaseOrderReport, SalesOrderReport } from "./pages/Reports";
 
 const { Header, Sider, Content } = Layout;
 
@@ -391,6 +392,14 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+              {/* Reports */}
+              <Route path="/reports/purchase-orders" element={<ProtectedRoute roles={['admin','manager','user']}><PurchaseOrderReport /></ProtectedRoute>} />
+              <Route path="/reports/sales-orders" element={<ProtectedRoute roles={['admin','manager','user']}><SalesOrderReport /></ProtectedRoute>} />
+              <Route path="/reports/inventory-movement" element={<ProtectedRoute roles={['admin','manager','user']}><InventoryMovementReport /></ProtectedRoute>} />
+              <Route path="/reports/inventory-by-location" element={<ProtectedRoute roles={['admin','manager','user']}><InventoryByLocationReport /></ProtectedRoute>} />
+              <Route path="/reports/item-detail" element={<ProtectedRoute roles={['admin','manager','user']}><ItemDetailReport /></ProtectedRoute>} />
+              <Route path="/reports/inventory-check-discrepancy" element={<ProtectedRoute roles={['admin','manager','user']}><InventoryCheckDiscrepancyReport /></ProtectedRoute>} />
 
           {/* Settings */}
           <Route
