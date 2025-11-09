@@ -53,8 +53,8 @@ import { InventoryByLocationReport, InventoryCheckDiscrepancyReport, InventoryMo
 const { Header, Sider, Content } = Layout;
 
 const AppLayout = () => (
-  <Layout style={{ minHeight: "100vh" }}>
-    <Header style={{ padding: 0 }}>
+  <Layout style={{ height: "100vh", overflow: "hidden" }}>
+    <Header style={{ padding: 0, height: 64 }}>
       <TopBar />
     </Header>
     <Layout>
@@ -72,6 +72,7 @@ const AppLayout = () => (
           background: "#fff",
           padding: 24,
           borderRadius: 8,
+          overflowY: "auto",
         }}
       >
         <Outlet />
