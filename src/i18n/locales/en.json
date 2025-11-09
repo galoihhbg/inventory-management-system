@@ -1,7 +1,7 @@
 {
   "common": {
     "create": "Create",
-    "edit": "Edit", 
+    "edit": "Edit",
     "update": "Update",
     "cancel": "Cancel",
     "save": "Save",
@@ -48,7 +48,8 @@
     "loginSuccess": "Login successful",
     "loginFailed": "Login failed",
     "unauthorized": "Unauthorized access",
-    "sessionExpired": "Session expired"
+    "sessionExpired": "Session expired",
+    "signInToManage": "Sign in to manage your inventory"
   },
   "dashboard": {
     "health": "Health",
@@ -87,7 +88,7 @@
     "locationCode": "Location Code",
     "warehouse": "Warehouse",
     "area": "Area",
-    "row": "Row", 
+    "row": "Row",
     "floor": "Floor",
     "isReceivingBin": "Mark as receiving bin (for incoming inventory)",
     "selectWarehouse": "Select warehouse",
@@ -98,7 +99,7 @@
     "example": "Example: Area A, Row 1, Floor 1 → A-01-01",
     "preview": "Preview:",
     "areaRequired": "Area is required",
-    "rowRequired": "Row is required", 
+    "rowRequired": "Row is required",
     "floorRequired": "Floor is required",
     "rowMustBeNumber": "Row must be a number",
     "floorMustBeNumber": "Floor must be a number",
@@ -159,7 +160,7 @@
   },
   "api": {
     "createFailed": "Create failed",
-    "updateFailed": "Update failed", 
+    "updateFailed": "Update failed",
     "deleteFailed": "Delete failed",
     "fetchFailed": "Fetch failed",
     "operationFailed": "Operation failed",
