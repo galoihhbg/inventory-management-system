@@ -1,7 +1,7 @@
 {
   "common": {
     "create": "Tạo mới",
-    "edit": "Chỉnh sửa", 
+    "edit": "Chỉnh sửa",
     "update": "Cập nhật",
     "cancel": "Hủy",
     "save": "Lưu",
@@ -48,7 +48,8 @@
     "loginSuccess": "Đăng nhập thành công",
     "loginFailed": "Đăng nhập thất bại",
     "unauthorized": "Không có quyền truy cập",
-    "sessionExpired": "Phiên đăng nhập đã hết hạn"
+    "sessionExpired": "Phiên đăng nhập đã hết hạn",
+    "signInToManage": "Đăng nhập để quản lý kho hàng của bạn"
   },
   "dashboard": {
     "health": "Sức khỏe hệ thống",
@@ -80,7 +81,7 @@
     "locationCode": "Mã vị trí",
     "warehouse": "Kho",
     "area": "Khu vực",
-    "row": "Dãy", 
+    "row": "Dãy",
     "floor": "Tầng",
     "isReceivingBin": "Đánh dấu là vị trí tiếp nhận hàng",
     "selectWarehouse": "Chọn kho",
@@ -91,7 +92,7 @@
     "example": "Ví dụ: Khu A, Dãy 1, Tầng 1 → A-01-01",
     "preview": "Xem trước:",
     "areaRequired": "Khu vực là bắt buộc",
-    "rowRequired": "Dãy là bắt buộc", 
+    "rowRequired": "Dãy là bắt buộc",
     "floorRequired": "Tầng là bắt buộc",
     "rowMustBeNumber": "Dãy phải là số",
     "floorMustBeNumber": "Tầng phải là số",
@@ -152,7 +153,7 @@
   },
   "api": {
     "createFailed": "Tạo mới thất bại",
-    "updateFailed": "Cập nhật thất bại", 
+    "updateFailed": "Cập nhật thất bại",
     "deleteFailed": "Xóa thất bại",
     "fetchFailed": "Tải dữ liệu thất bại",
     "operationFailed": "Thao tác thất bại",
