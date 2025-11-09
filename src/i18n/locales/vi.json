@@ -72,7 +72,12 @@
     "settings": "Cài đặt",
     "categories": "Danh mục",
     "baseUnits": "Đơn vị cơ bản",
-    "roleManagement": "Quản lý vai trò"
+    "roleManagement": "Quản lý vai trò",
+    "documents": "Chứng từ",
+    "inbound": "Nhập",
+    "outbound": "Xuất",
+    "inventoryOps": "Kiểm kê",
+    "inventorySummary": "Tổng hợp tồn kho"
   },
   "bins": {
     "title": "Quản lý vị trí",

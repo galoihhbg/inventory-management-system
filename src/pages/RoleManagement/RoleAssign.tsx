@@ -1,27 +1,36 @@
-import React, { useMemo, useState } from 'react';
-import { Card, Table, Select, Button, Space, notification } from 'antd';
-import { useTranslation } from 'react-i18next';
-import { useEntityList, useEntityCRUD } from '../../api/hooks';
-import { SaveOutlined } from '@ant-design/icons';
+import React, { useMemo, useState } from "react";
+import { Card, Table, Select, Button, Space, notification } from "antd";
+import { useTranslation } from "react-i18next";
+import { useEntityList, useEntityCRUD } from "../../api/hooks";
+import { SaveOutlined } from "@ant-design/icons";
 
 const { Option } = Select;
 
 export default function RoleAssign() {
   const { t } = useTranslation();
-  const { data: usersData, isLoading: usersLoading, refetch: refetchUsers } = useEntityList<any>('/users', { limit: 200 });
-  const { data: rolesData, isLoading: rolesLoading } = useEntityList<any>('/roles', { limit: 200 });
-  const { update } = useEntityCRUD('/users');
+  const {
+    data: usersData,
+    isLoading: usersLoading,
+    refetch: refetchUsers,
+  } = useEntityList<any>("/users", { limit: 200 });
+  const { data: rolesData, isLoading: rolesLoading } = useEntityList<any>(
+    "/roles",
+    { limit: 200 }
+  );
+  const { update } = useEntityCRUD("/users");
 
   const users = useMemo(() => usersData?.data || [], [usersData]);
   const roles = useMemo(() => rolesData?.data || [], [rolesData]);
 
-  const [localRoles, setLocalRoles] = useState<Record<string, number | null>>(() => {
-    const init: Record<string, number | null> = {};
-    (users || []).forEach((u: any) => {
-      init[u.id] = u.roleId ?? (u.role ? u.role.id : null);
-    });
-    return init;
-  });
+  const [localRoles, setLocalRoles] = useState<Record<string, number | null>>(
+    () => {
+      const init: Record<string, number | null> = {};
+      (users || []).forEach((u: any) => {
+        init[u.id] = u.roleId ?? (u.role ? u.role.id : null);
+      });
+      return init;
+    }
+  );
 
   React.useEffect(() => {
     const init: Record<string, number | null> = {};
@@ -38,59 +47,72 @@ export default function RoleAssign() {
   const saveRole = async (userId: number) => {
     const roleId = localRoles[userId];
     if (roleId == null) {
-      notification.warning({ message: t('roleManagement.selectRoleWarning') });
+      notification.warning({ message: t("roleManagement.selectRoleWarning") });
       return;
     }
     try {
       await update.mutateAsync({ id: userId, payload: { roleId } });
-      notification.success({ message: t('roleManagement.roleAssigned') });
+      notification.success({ message: t("roleManagement.roleAssigned") });
       refetchUsers();
     } catch (err: any) {
-      notification.error({ message: t('roleManagement.saveFailed'), description: err?.response?.data?.message || err.message });
+      notification.error({
+        message: t("roleManagement.saveFailed"),
+        description: err?.response?.data?.message || err.message,
+      });
     }
   };
 
   const columns = [
-    { title: 'ID', dataIndex: 'id', key: 'id', width: 80 },
-    { title: t('auth.username'), dataIndex: 'username', key: 'username' },
-    { title: t('auth.email'), dataIndex: 'email', key: 'email' },
+    // { title: 'ID', dataIndex: 'id', key: 'id', width: 80 },
+    { title: t("auth.username"), dataIndex: "username", key: "username" },
+    { title: t("auth.email"), dataIndex: "email", key: "email" },
     {
-      title: t('roleManagement.role'),
-      key: 'role',
+      title: t("roleManagement.role"),
+      key: "role",
       render: (_: any, record: any) => (
         <Select
           style={{ width: 240 }}
           value={localRoles[record.id] ?? null}
-          placeholder={t('roleManagement.selectRole')}
+          placeholder={t("roleManagement.selectRole")}
           onChange={(val) => handleRoleChange(record.id, val)}
           loading={rolesLoading}
           allowClear
         >
           {roles.map((r: any) => (
             <Option key={r.id} value={r.id}>
-              {r.roleName || r.name || `${t('roleManagement.role')} ${r.id}`}
+              {r.roleName || r.name || `${t("roleManagement.role")} ${r.id}`}
             </Option>
           ))}
         </Select>
-      )
+      ),
     },
     {
-      title: t('common.actions'),
-      key: 'actions',
+      title: t("common.actions"),
+      key: "actions",
       width: 140,
       render: (_: any, record: any) => (
         <Space>
-          <Button icon={<SaveOutlined />} type="primary" onClick={() => saveRole(record.id)}>
-            {t('common.save')}
+          <Button
+            icon={<SaveOutlined />}
+            type="primary"
+            onClick={() => saveRole(record.id)}
+          >
+            {t("common.save")}
           </Button>
         </Space>
-      )
-    }
+      ),
+    },
   ];
 
   return (
-    <Card title={t('roleManagement.title')}>
-      <Table rowKey="id" dataSource={users} columns={columns} loading={usersLoading || rolesLoading} pagination={{ pageSize: 10 }} />
+    <Card title={t("roleManagement.title")}>
+      <Table
+        rowKey="id"
+        dataSource={users}
+        columns={columns}
+        loading={usersLoading || rolesLoading}
+        pagination={{ pageSize: 10 }}
+      />
       <div style={{ marginTop: 12 }}>
         <Space>
           <Button
@@ -99,15 +121,27 @@ export default function RoleAssign() {
                 .map(([k, v]) => ({ id: Number(k), roleId: v }))
                 .filter((x) => x.roleId != null);
               try {
-                await Promise.all(changed.map((c) => update.mutateAsync({ id: c.id, payload: { roleId: c.roleId } })));
-                notification.success({ message: t('roleManagement.rolesSaved') });
+                await Promise.all(
+                  changed.map((c) =>
+                    update.mutateAsync({
+                      id: c.id,
+                      payload: { roleId: c.roleId },
+                    })
+                  )
+                );
+                notification.success({
+                  message: t("roleManagement.rolesSaved"),
+                });
                 refetchUsers();
               } catch (err: any) {
-                notification.error({ message: t('roleManagement.bulkSaveFailed'), description: err?.message });
+                notification.error({
+                  message: t("roleManagement.bulkSaveFailed"),
+                  description: err?.message,
+                });
               }
             }}
           >
-            {t('roleManagement.saveAll')}
+            {t("roleManagement.saveAll")}
           </Button>
         </Space>
       </div>

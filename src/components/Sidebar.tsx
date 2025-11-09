@@ -1,34 +1,54 @@
-import React, { useMemo } from 'react';
-import { Menu } from 'antd';
-import { Link, useLocation } from 'react-router-dom';
-import { HomeOutlined, DatabaseOutlined, AppstoreOutlined, TeamOutlined, SettingOutlined, UnlockOutlined, ShoppingCartOutlined, StockOutlined, CheckCircleOutlined } from '@ant-design/icons';
-import { useTranslation } from 'react-i18next';
-import { useAuth } from '../context/AuthContext';
-import { DEFAULT_PERMISSIONS, DISPLAY_CONFIG_KEY } from '../config/permissions';
+import React, { useMemo, useCallback, useState, useEffect } from "react";
+import { Menu } from "antd";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { useAuth } from "../context/AuthContext";
+import { DEFAULT_PERMISSIONS, DISPLAY_CONFIG_KEY } from "../config/permissions";
+import { menuItems, AppMenuItem } from "../config/menuConfig";
 
-type MenuItem = {
-  key: string;
-  labelKey: string; // Key để dịch từ i18n
-  path: string;
-  icon?: React.ReactNode;
+const findMenuItemByKey = (
+  items: AppMenuItem[],
+  key: string
+): AppMenuItem | null => {
+  for (const item of items) {
+    if (item.key === key) return item;
+    if (item.children) {
+      const found = findMenuItemByKey(item.children, key);
+      if (found) return found;
+    }
+  }
+  return null;
 };
 
-const ITEMS: MenuItem[] = [
-  { key: 'dashboard', labelKey: 'navigation.dashboard', path: '/dashboard', icon: <HomeOutlined /> },
-  { key: 'warehouses', labelKey: 'navigation.warehouses', path: '/warehouses', icon: <DatabaseOutlined /> },
-  { key: 'items', labelKey: 'navigation.items', path: '/items', icon: <AppstoreOutlined /> },
-  { key: 'inventoryStock', labelKey: 'navigation.inventory', path: '/inventory-stock', icon: <StockOutlined /> },
-  { key: 'inventorySummary', labelKey: 'navigation.inventory', path: '/inventory-summary', icon: <StockOutlined /> },
-  { key: 'inventoryChecks', labelKey: 'navigation.inventoryChecks', path: '/inventory-checks', icon: <CheckCircleOutlined /> },
-  { key: 'purchaseOrders', labelKey: 'navigation.purchaseOrders', path: '/purchase-orders', icon: <ShoppingCartOutlined /> },
-  { key: 'salesOrders', labelKey: 'navigation.salesOrders', path: '/sales-orders', icon: <ShoppingCartOutlined /> },
-  { key: 'users', labelKey: 'navigation.users', path: '/users', icon: <TeamOutlined /> },
-  { key: 'roles', labelKey: 'navigation.roles', path: '/roles', icon: <UnlockOutlined /> },
-  { key: 'partners', labelKey: 'navigation.partners', path: '/partners', icon: <DatabaseOutlined /> },
-  { key: 'bins', labelKey: 'navigation.bins', path: '/bins', icon: <DatabaseOutlined /> },
-  { key: 'baseUnits', labelKey: 'navigation.baseUnits', path: '/base-units', icon: <DatabaseOutlined /> },
-  { key: 'settings', labelKey: 'navigation.settings', path: '/settings/display', icon: <SettingOutlined /> }
-];
+const findMenuItemByPath = (
+  items: AppMenuItem[],
+  path: string,
+  parentKey: string | null = null
+): { item: AppMenuItem | null; parentKey: string | null } => {
+  let bestMatch: { item: AppMenuItem | null; parentKey: string | null } = {
+    item: null,
+    parentKey: null,
+  };
+
+  for (const item of items) {
+    if (item.path === path) {
+      return { item, parentKey };
+    }
+
+    if (item.children) {
+      const found = findMenuItemByPath(item.children, path, item.key);
+      if (found.item) {
+        return found;
+      }
+    }
+    if (item.path && path.startsWith(item.path) && item.path !== "/") {
+      if (!bestMatch.item || item.path.length > bestMatch.item.path!.length) {
+        bestMatch = { item, parentKey };
+      }
+    }
+  }
+  return bestMatch;
+};
 
 function loadDisplayConfig(): Record<string, string[]> | null {
   try {
@@ -40,7 +60,8 @@ function loadDisplayConfig(): Record<string, string[]> | null {
 }
 
 export default function Sidebar() {
-  const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const location = useLocation();
   const { hasRole } = useAuth();
   const { t } = useTranslation();
 
@@ -49,21 +70,92 @@ export default function Sidebar() {
     return custom || DEFAULT_PERMISSIONS;
   }, []);
 
-  const visibleItems = useMemo(() => {
-    return ITEMS.filter((it) => {
-      const allowedRoles = displayConfig[it.key] ?? DEFAULT_PERMISSIONS[it.key] ?? [];
-      if (!allowedRoles || allowedRoles.length === 0) return false;
-      return hasRole(allowedRoles);
-    });
-  }, [displayConfig, hasRole]);
+  const buildAndFilterMenuItems = useCallback(
+    (items: AppMenuItem[]): any[] => {
+      return items.reduce((acc, item) => {
+        if (item.children) {
+          const processedChildren = buildAndFilterMenuItems(item.children);
+          if (processedChildren.length > 0) {
+            acc.push({
+              key: item.key,
+              icon: item.icon,
+              label: t(item.labelKey),
+              children: processedChildren,
+            });
+          }
+        } else if (item.path) {
+          const allowedRoles =
+            displayConfig[item.key] ?? DEFAULT_PERMISSIONS[item.key] ?? [];
+
+          if (hasRole(allowedRoles)) {
+            acc.push({
+              key: item.key,
+              icon: item.icon,
+              label: t(item.labelKey),
+            });
+          }
+        }
+        return acc;
+      }, [] as any[]);
+    },
+    [t, hasRole, displayConfig]
+  );
+
+  const menuItemsForRender = useMemo(
+    () => buildAndFilterMenuItems(menuItems),
+    [buildAndFilterMenuItems]
+  );
+
+  const handleMenuClick = useCallback(
+    ({ key }: { key: string }) => {
+      const menuItem = findMenuItemByKey(menuItems, key);
+      if (menuItem && menuItem.path) {
+        navigate(menuItem.path);
+      }
+    },
+    [navigate]
+  );
+
+  const { selectedKey, openKey } = useMemo(() => {
+    const { item, parentKey } = findMenuItemByPath(
+      menuItems,
+      location.pathname
+    );
+    return {
+      selectedKey: item ? item.key : null,
+      openKey: parentKey,
+    };
+  }, [location.pathname]);
+
+  const [currentOpenKeys, setCurrentOpenKeys] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (openKey && !currentOpenKeys.includes(openKey)) {
+      setCurrentOpenKeys((prevKeys) => [...prevKeys, openKey]);
+    }
+  }, [openKey]);
+
+  const handleOpenChange = (keys: string[]) => {
+    setCurrentOpenKeys(keys);
+  };
 
   return (
-    <Menu selectedKeys={[pathname]} mode="inline" style={{ height: '100%', borderRight: 0 }}>
-      {visibleItems.map((it) => (
-        <Menu.Item key={it.path} icon={it.icon}>
-          <Link to={it.path}>{t(it.labelKey)}</Link>
-        </Menu.Item>
-      ))}
-    </Menu>
+    <div
+      style={{
+        height: "100%",
+        overflowY: "auto",
+        overflowX: "hidden",
+      }}
+    >
+      <Menu
+        mode="inline"
+        selectedKeys={selectedKey ? [selectedKey] : []}
+        openKeys={currentOpenKeys}
+        onOpenChange={handleOpenChange}
+        items={menuItemsForRender}
+        onClick={handleMenuClick}
+        style={{ borderRight: 0 }}
+      />
+    </div>
   );
 }

@@ -72,7 +72,18 @@
     "settings": "Settings",
     "categories": "Categories",
     "baseUnits": "Base Units",
-    "roleManagement": "Role Management"
+    "roleManagement": "Role Management",
+    "documents": "Documents",
+    "inbound": "Inbound",
+    "warehouseReceipts": "Warehouse Receipts",
+    "supplierReturns": "Supplier Returns",
+    "outbound": "Outbound",
+    "warehouseIssues": "Warehouse Issues",
+    "customerReturns": "Customer Returns",
+    "inventoryOps": "Inventory Ops",
+    "inventoryAdjustments": "Inventory Adjustments",
+    "inventoryStock": "Inventory Stock",
+    "inventorySummary": "Inventory Summary"
   },
   "bins": {
     "title": "Bins",
