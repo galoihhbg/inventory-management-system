@@ -515,27 +515,27 @@ export interface InventoryMovementReportItem {
   warehouseCode: string;
   openingQuantity: number;
   openingValue: number;
-  inboundQuantity: number;
-  inboundValue: number;
-  outboundQuantity: number;
-  outboundValue: number;
-  stockQuantity: number;
-  stockValue: number;
+  importQuantity: number;
+  importValue: number;
+  exportQuantity: number;
+  exportValue: number;
+  closingQuantity: number;
+  closingValue: number;
 }
 
 export interface InventoryByLocationReportItem {
   itemCode: string;
   itemName: string;
   warehouseCode: string;
-  locationCode: string;
+  binCode: string;
   openingQuantity: number;
   openingValue: number;
-  inboundQuantity: number;
-  inboundValue: number;
-  outboundQuantity: number;
-  outboundValue: number;
-  stockQuantity: number;
-  stockValue: number;
+  importQuantity: number;
+  importValue: number;
+  exportQuantity: number;
+  exportValue: number;
+  closingQuantity: number;
+  closingValue: number;
 }
 
 export interface ItemDetailReportItem {
@@ -544,18 +544,18 @@ export interface ItemDetailReportItem {
   description: string;
   itemCode: string;
   itemName: string;
-  costPrice: number;
-  inboundQuantity: number;
-  inboundValue: number;
-  outboundQuantity: number;
-  outboundValue: number;
+  unitCost: number;
+  importQuantity: number;
+  importValue: number;
+  exportQuantity: number;
+  exportValue: number;
 }
 
 export interface InventoryCheckDiscrepancyReportItem {
   itemCode: string;
   itemName: string;
   warehouseCode: string;
-  locationCode: string;
+  binCode: string;
   actualQuantity: number;
   discrepancy: number;
 }

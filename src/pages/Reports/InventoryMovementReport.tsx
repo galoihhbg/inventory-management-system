@@ -84,49 +84,49 @@ export default function InventoryMovementReport() {
       render: (value: number) => value?.toLocaleString() || 0
     },
     {
-      title: t('reports.inboundQuantity'),
-      dataIndex: 'inboundQuantity',
-      key: 'inboundQuantity',
+      title: t('reports.importQuantity'),
+      dataIndex: 'importQuantity',
+      key: 'importQuantity',
       width: 120,
       align: 'right' as const,
       render: (value: number) => value?.toLocaleString() || 0
     },
     {
-      title: t('reports.inboundValue'),
-      dataIndex: 'inboundValue',
-      key: 'inboundValue',
+      title: t('reports.importValue'),
+      dataIndex: 'importValue',
+      key: 'importValue',
       width: 150,
       align: 'right' as const,
       render: (value: number) => value?.toLocaleString() || 0
     },
     {
-      title: t('reports.outboundQuantity'),
-      dataIndex: 'outboundQuantity',
-      key: 'outboundQuantity',
+      title: t('reports.exportQuantity'),
+      dataIndex: 'exportQuantity',
+      key: 'exportQuantity',
       width: 120,
       align: 'right' as const,
       render: (value: number) => value?.toLocaleString() || 0
     },
     {
-      title: t('reports.outboundValue'),
-      dataIndex: 'outboundValue',
-      key: 'outboundValue',
+      title: t('reports.exportValue'),
+      dataIndex: 'exportValue',
+      key: 'exportValue',
       width: 150,
       align: 'right' as const,
       render: (value: number) => value?.toLocaleString() || 0
     },
     {
-      title: t('reports.stockQuantity'),
-      dataIndex: 'stockQuantity',
-      key: 'stockQuantity',
+      title: t('reports.closingQuantity'),
+      dataIndex: 'closingQuantity',
+      key: 'closingQuantity',
       width: 120,
       align: 'right' as const,
       render: (value: number) => value?.toLocaleString() || 0
     },
     {
-      title: t('reports.stockValue'),
-      dataIndex: 'stockValue',
-      key: 'stockValue',
+      title: t('reports.closingValue'),
+      dataIndex: 'closingValue',
+      key: 'closingValue',
       width: 150,
       align: 'right' as const,
       render: (value: number) => value?.toLocaleString() || 0
@@ -135,8 +135,9 @@ export default function InventoryMovementReport() {
 
   const handleDateRangeChange = (dates: any) => {
     if (dates && dates.length === 2) {
-      setFilter('fromDate', dates[0].format('YYYY-MM-DD'));
-      setFilter('toDate', dates[1].format('YYYY-MM-DD'));
+      // Send ISO format dates to API as specified in documentation
+      setFilter('fromDate', dates[0].startOf('day').toISOString());
+      setFilter('toDate', dates[1].endOf('day').toISOString());
     } else {
       setFilter('fromDate', undefined);
       setFilter('toDate', undefined);

@@ -129,7 +129,7 @@ export default function SalesOrderDetail() {
       key: 'costPrice',
       align: 'right' as const,
       render: (price: number, record: any) => 
-        record.autoCalculateCost ? 'Auto' : (price ? `$${price.toFixed(2)}` : '-')
+        (price ? `$${price.toFixed(2)}` : '-')
     },
     {
       title: 'Total',

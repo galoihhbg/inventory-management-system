@@ -47,9 +47,9 @@ export default function InventoryCheckDiscrepancyReport() {
       width: 120
     },
     {
-      title: t('reports.locationCode'),
-      dataIndex: 'locationCode',
-      key: 'locationCode',
+      title: t('reports.binCode'),
+      dataIndex: 'binCode',
+      key: 'binCode',
       width: 120
     },
     {
@@ -75,8 +75,9 @@ export default function InventoryCheckDiscrepancyReport() {
 
   const handleDateRangeChange = (dates: any) => {
     if (dates && dates.length === 2) {
-      setFilter('fromDate', dates[0].format('YYYY-MM-DD'));
-      setFilter('toDate', dates[1].format('YYYY-MM-DD'));
+      // Send ISO format dates to API as specified in documentation
+      setFilter('fromDate', dates[0].startOf('day').toISOString());
+      setFilter('toDate', dates[1].endOf('day').toISOString());
     } else {
       setFilter('fromDate', undefined);
       setFilter('toDate', undefined);
@@ -118,7 +119,7 @@ export default function InventoryCheckDiscrepancyReport() {
       </Card>
 
       <Table 
-        rowKey={(record, index) => `${record.itemCode}-${record.warehouseCode}-${record.locationCode}-${index}`}
+        rowKey={(record, index) => `${record.itemCode}-${record.warehouseCode}-${record.binCode}-${index}`}
         loading={isLoading} 
         dataSource={data} 
         columns={columns} 
