@@ -76,8 +76,9 @@ export default function SalesOrderReport() {
 
   const handleDateRangeChange = (dates: any) => {
     if (dates && dates.length === 2) {
-      setFilter('fromDate', dates[0].format('YYYY-MM-DD'));
-      setFilter('toDate', dates[1].format('YYYY-MM-DD'));
+      // Send ISO format dates to API as specified in documentation
+      setFilter('fromDate', dates[0].startOf('day').toISOString());
+      setFilter('toDate', dates[1].endOf('day').toISOString());
     } else {
       setFilter('fromDate', undefined);
       setFilter('toDate', undefined);
